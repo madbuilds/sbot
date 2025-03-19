@@ -1,7 +1,9 @@
-﻿using System;
-
-// ReSharper disable InconsistentNaming
+﻿// ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
+// ReSharper disable once UnusedType.Global
+
+using System;
+
 public static class CPH { //Mock CPH to ignore UNKNOWN reference for extensions
     public static void LogInfo(string message) {
         Console.WriteLine($"[GlobalCPH LogInfo]: {message}");
@@ -16,6 +18,11 @@ public static class CPH { //Mock CPH to ignore UNKNOWN reference for extensions
     }
 
     public static void TriggerCodeEvent(string eventName) {
+        throw new NotImplementedException();
+    }
+
+    public static bool TryGetArg<T>(string key, out T value)
+    {
         throw new NotImplementedException();
     }
 }

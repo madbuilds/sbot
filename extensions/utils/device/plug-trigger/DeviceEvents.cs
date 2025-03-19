@@ -1,8 +1,11 @@
 ﻿// ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
+// ReSharper disable once UnusedType.Global
+
 using System;
 using System.Management;
 
-public class CPHInline {
+public class DeviceEvents : CPHInlineBase {
     private ManagementEventWatcher watcher;
 
     private const string KEYBOARD_CONNECTED_EVENT      = "system.event.keyboard.connected";
@@ -75,53 +78,39 @@ public class CPHInline {
             }
         }
 
-        if (deviceType != null) {
-            handleDeviceConnection(eventType, ANY_CONNECTED_EVENT, ANY_DISCONNECTED_EVENT, deviceName, deviceId);
-            switch (deviceType) {
-                case "Keyboard":
-                    handleDeviceConnection(eventType, KEYBOARD_CONNECTED_EVENT, KEYBOARD_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-                case "Mouse":
-                    handleDeviceConnection(eventType, MOUSE_CONNECTED_EVENT, MOUSE_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-                case "GameController":
-                    handleDeviceConnection(eventType, CONTROLLER_CONNECTED_EVENT, CONTROLLER_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-                case "DiskDrive":
-                    handleDeviceConnection(eventType, DRIVE_CONNECTED_EVENT, DRIVE_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-                case "AudioEndpoint":
-                    handleDeviceConnection(eventType, AUDIO_CONNECTED_EVENT, AUDIO_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-                case "Printer":
-                    handleDeviceConnection(eventType, PRINTER_CONNECTED_EVENT, PRINTER_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-
-                case "USB":
-                    handleDeviceConnection(eventType, USB_CONNECTED_EVENT, USB_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-
-                case "Media":
-                    handleDeviceConnection(eventType, MEDIA_CONNECTED_EVENT, MEDIA_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-
-                case "HIDClass":
-                    handleDeviceConnection(eventType, HID_CONNECTED_EVENT, HID_DISCONNECTED_EVENT, deviceName, deviceId);
-                    return;
-                break;
-
-                default:
-                    logDebug(() => "UNHANDLED DEVICE_TYPE: " + deviceType + "(" + deviceId + ")");
-                break;
-            };
+        if (deviceType == null) return;
+        handleDeviceConnection(eventType, ANY_CONNECTED_EVENT, ANY_DISCONNECTED_EVENT, deviceName, deviceId);
+        switch (deviceType) {
+            case "Keyboard":
+                handleDeviceConnection(eventType, KEYBOARD_CONNECTED_EVENT, KEYBOARD_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "Mouse":
+                handleDeviceConnection(eventType, MOUSE_CONNECTED_EVENT, MOUSE_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "GameController":
+                handleDeviceConnection(eventType, CONTROLLER_CONNECTED_EVENT, CONTROLLER_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "DiskDrive":
+                handleDeviceConnection(eventType, DRIVE_CONNECTED_EVENT, DRIVE_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "AudioEndpoint":
+                handleDeviceConnection(eventType, AUDIO_CONNECTED_EVENT, AUDIO_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "Printer":
+                handleDeviceConnection(eventType, PRINTER_CONNECTED_EVENT, PRINTER_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "USB":
+                handleDeviceConnection(eventType, USB_CONNECTED_EVENT, USB_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "Media":
+                handleDeviceConnection(eventType, MEDIA_CONNECTED_EVENT, MEDIA_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            case "HIDClass":
+                handleDeviceConnection(eventType, HID_CONNECTED_EVENT, HID_DISCONNECTED_EVENT, deviceName, deviceId);
+                return;
+            default:
+                logDebug(() => "UNHANDLED DEVICE_TYPE: " + deviceType + "(" + deviceId + ")");
+                return;
         }
     }
 
@@ -133,7 +122,7 @@ public class CPHInline {
         }
     }
 
-    private void handleDeviceEvent(String eventName, object deviceName, object deviceId) {
+    private void handleDeviceEvent(string eventName, object deviceName, object deviceId) {
         logDebug(() => $"{eventName}: {deviceName}");
         CPH.SetArgument("device.name", deviceName);
         CPH.SetArgument("device.id", deviceId);
@@ -144,9 +133,9 @@ public class CPHInline {
     //----------------------------------------------------------------
     // DEFAULT METHODS AND SETUP
     //----------------------------------------------------------------
-    private bool isInitialized = false;
-    private bool isDebugEnabled = false;
-    private String widgetActionName = "TEMPLATE";
+    private const bool isDebugEnabled = false;
+    private bool isInitialized;
+    private string widgetActionName = "TEMPLATE";
 
     public bool Execute() {
         setUp();
@@ -166,20 +155,21 @@ public class CPHInline {
     }
 
     private T getProperty<T>(string key, T defaultValue) {
-        bool result = false;
-        T value;
-
-        result = CPH.TryGetArg(key, out value);
+        var result = CPH.TryGetArg(key, out T value);
         logDebug(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
 
-        return result ? (!value.Equals("") ? value : defaultValue) : defaultValue;
+        return result ? 
+            !value.Equals("") ? 
+                value 
+                : defaultValue 
+            : defaultValue;
     }
 
-    private void logInfo(Func<String> getMessage) {
+    private void logInfo(Func<string> getMessage) {
         CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
     }
 
-    private void logDebug(Func<String> getMessage) {
+    private void logDebug(Func<string> getMessage) {
         if (!isDebugEnabled) {
             return;
         }

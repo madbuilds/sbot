@@ -41,8 +41,9 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="CPH.cs" />
-        <Compile Include="Program.cs"/>
+        <Compile Include="CPHInlineBase.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="utils\device\other\SimpleScript.cs" />
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
