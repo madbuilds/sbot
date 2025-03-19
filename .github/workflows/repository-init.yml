@@ -1,0 +1,107 @@
+name: init repository on create
+
+on:
+  push:
+    # Triggers when the repository is created from a template
+    branches:
+      - main
+      - master
+  # Allows manual triggering
+  workflow_dispatch:
+
+env:
+  INIT_BRANCH: init
+  SOURCE_BRANCH: ${{ github.ref_name }}
+  REPOSITORY_TYPE:     $(jq -r '.repository.custom_properties.type // "default"' < "$GITHUB_EVENT_PATH")
+  REPOSITORY_LANGUAGE: $(jq -r '.repository.custom_properties.language // "unknown"' < "$GITHUB_EVENT_PATH")
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  initialize:
+    if: ${{ !startsWith(github.repository, 'madbuilds/template-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full history is available for PR
+
+      - name: is recently created
+        run: |
+          if [ $(git rev-list --count HEAD) -gt 1 ]; then
+            echo "Repository has multiple commits, skipping initialization"
+            exit 1
+          fi
+
+#      - name: Get repository variables
+#        id: repo-vars
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          REPO_NAME="${{ github.repository }}"
+#
+#          LANGUAGE=$(gh api repos/$REPO_NAME --jq '.custom_properties.language // "unknown"')
+#          TYPE=$(gh api repos/$REPO_NAME --jq '.custom_properties.type // "default"')
+#
+#          echo "Detected language: $LANGUAGE"
+#          echo "Detected type: $TYPE"
+#
+#          echo "language=${LANGUAGE:-unknown}" >> $GITHUB_ENV
+#          echo "type=${TYPE:-default}" >> $GITHUB_ENV
+
+      - name: get repository properties
+        id: repo-vars
+        run: |
+          echo "Detected branch name: ${{ env.SOURCE_BRANCH }}"
+          echo "Detected language:    ${{ env.REPOSITORY_LANGUAGE }}"
+          echo "Detected type:        ${{ env.REPOSITORY_TYPE }}"
+
+      - name: copy template files
+        run: |
+          TEMPLATE_PATH="./template/${{ env.REPOSITORY_LANGUAGE }}/${{ env.REPOSITORY_TYPE }}"
+          if [ -d "$TEMPLATE_PATH" ]; then
+            echo "Copying file from $TEMPLATE_PATH"
+            shopt -s dotglob
+            cp -rfv "$TEMPLATE_PATH"/* ./
+            shopt -u dotglob
+          else
+            echo "Template path $TEMPLATE_PATH does not exist. skipping..."
+          fi
+
+      - name: update template-sync ignore file
+        run: |
+          TEMPLATE_PATH="./template/${{ env.REPOSITORY_LANGUAGE }}/${{ env.REPOSITORY_TYPE }}"
+          if [ -d "$TEMPLATE_PATH" ]; then
+            echo "updating template ignore file"
+          else
+            echo "Template path $TEMPLATE_PATH does not exist. skipping..."
+          fi
+
+      - name: remove template files
+        run: |
+          rm -rf ./.github/workflows/example-loop.yml
+          rm -rf ./.github/workflows/repository-init.yml
+          rm -rf ./.github/workflows/secrets-update.yml
+          rm -rf ./template
+
+      - name: commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b ${{ env.INIT_BRANCH }}
+          git add .
+          git commit -m "Cleanup template and move files"
+          git push origin ${{ env.INIT_BRANCH }}
+
+      - name: create pull request
+        run: |
+          gh pr create \
+            -B ${{ env.SOURCE_BRANCH }} \
+            -H ${{ env.INIT_BRANCH }} \
+            --title 'Initialize repository on create (${{ env.INIT_BRANCH }} -> ${{ env.SOURCE_BRANCH }})' \
+            --body 'Created by Github action'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
