@@ -26,39 +26,39 @@ public class CPHInline {
     private const string ANY_CONNECTED_EVENT           = "system.event.hid.connected";
     private const string ANY_DISCONNECTED_EVENT        = "system.event.hid.disconnected";
 
-	private void init() {
-		WqlEventQuery query = new WqlEventQuery("SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'");
-		watcher = new ManagementEventWatcher(query);
-		watcher.EventArrived += new EventArrivedEventHandler(deviceEventArrived);
+    private void init() {
+        WqlEventQuery query = new WqlEventQuery("SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'");
+        watcher = new ManagementEventWatcher(query);
+        watcher.EventArrived += new EventArrivedEventHandler(deviceEventArrived);
 
-		CPH.RegisterCustomTrigger("Any: CONNECTED",    ANY_CONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Any: DISCONNECTED", ANY_DISCONNECTED_EVENT, new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Any: CONNECTED",    ANY_CONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Any: DISCONNECTED", ANY_DISCONNECTED_EVENT, new [] { "System", "onDeviceEvent" });
 
-		CPH.RegisterCustomTrigger("Keyboard: CONNECTED",      KEYBOARD_CONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Keyboard: DISCONNECTED",   KEYBOARD_DISCONNECTED_EVENT,   new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Mouse: CONNECTED",         MOUSE_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Mouse: DISCONNECTED",      MOUSE_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("USB: CONNECTED",           USB_CONNECTED_EVENT,           new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("USB: DISCONNECTED",        USB_DISCONNECTED_EVENT,        new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Drive: CONNECTED",         DRIVE_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Drive: DISCONNECTED",      DRIVE_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Audio: CONNECTED",         AUDIO_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Audio: DISCONNECTED",      AUDIO_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Controller: CONNECTED",    CONTROLLER_CONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Controller: DISCONNECTED", CONTROLLER_DISCONNECTED_EVENT, new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Printer: CONNECTED",       PRINTER_CONNECTED_EVENT,       new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Printer: DISCONNECTED",    PRINTER_DISCONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Media: CONNECTED",         MEDIA_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Media: DISCONNECTED",      MEDIA_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Device: CONNECTED",        HID_CONNECTED_EVENT,           new [] { "System", "onDeviceEvent" });
-		CPH.RegisterCustomTrigger("Device: DISCONNECTED",     HID_DISCONNECTED_EVENT,        new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Keyboard: CONNECTED",      KEYBOARD_CONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Keyboard: DISCONNECTED",   KEYBOARD_DISCONNECTED_EVENT,   new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Mouse: CONNECTED",         MOUSE_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Mouse: DISCONNECTED",      MOUSE_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("USB: CONNECTED",           USB_CONNECTED_EVENT,           new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("USB: DISCONNECTED",        USB_DISCONNECTED_EVENT,        new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Drive: CONNECTED",         DRIVE_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Drive: DISCONNECTED",      DRIVE_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Audio: CONNECTED",         AUDIO_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Audio: DISCONNECTED",      AUDIO_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Controller: CONNECTED",    CONTROLLER_CONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Controller: DISCONNECTED", CONTROLLER_DISCONNECTED_EVENT, new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Printer: CONNECTED",       PRINTER_CONNECTED_EVENT,       new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Printer: DISCONNECTED",    PRINTER_DISCONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Media: CONNECTED",         MEDIA_CONNECTED_EVENT,         new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Media: DISCONNECTED",      MEDIA_DISCONNECTED_EVENT,      new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Device: CONNECTED",        HID_CONNECTED_EVENT,           new [] { "System", "onDeviceEvent" });
+        CPH.RegisterCustomTrigger("Device: DISCONNECTED",     HID_DISCONNECTED_EVENT,        new [] { "System", "onDeviceEvent" });
     }
 
     private bool process() {
-    	watcher.Start();
-    	logDebug(() => "START DEVICE EVENT WATCHER");
+        watcher.Start();
+        logDebug(() => "START DEVICE EVENT WATCHER");
 
-    	return true;
+        return true;
     }
 
     private void deviceEventArrived(object sender, EventArrivedEventArgs e) {
@@ -69,59 +69,59 @@ public class CPHInline {
         var deviceId = instance["PNPDeviceID"];
 
         if (isDebugEnabled) {
-        	logDebug(() => "=================================");
-        	foreach (var property in instance.Properties) {
-        		logDebug(() => $"{property.Name}: {property.Value}");
-        	}
+            logDebug(() => "=================================");
+            foreach (var property in instance.Properties) {
+                logDebug(() => $"{property.Name}: {property.Value}");
+            }
         }
 
-		if (deviceType != null) {
-			handleDeviceConnection(eventType, ANY_CONNECTED_EVENT, ANY_DISCONNECTED_EVENT, deviceName, deviceId);
-			switch (deviceType) {
-				case "Keyboard":
-				    handleDeviceConnection(eventType, KEYBOARD_CONNECTED_EVENT, KEYBOARD_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
-				case "Mouse":
-				    handleDeviceConnection(eventType, MOUSE_CONNECTED_EVENT, MOUSE_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
-				case "GameController":
-				    handleDeviceConnection(eventType, CONTROLLER_CONNECTED_EVENT, CONTROLLER_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
-				case "DiskDrive":
-				    handleDeviceConnection(eventType, DRIVE_CONNECTED_EVENT, DRIVE_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
-				case "AudioEndpoint":
-				    handleDeviceConnection(eventType, AUDIO_CONNECTED_EVENT, AUDIO_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
-				case "Printer":
-				    handleDeviceConnection(eventType, PRINTER_CONNECTED_EVENT, PRINTER_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
+        if (deviceType != null) {
+            handleDeviceConnection(eventType, ANY_CONNECTED_EVENT, ANY_DISCONNECTED_EVENT, deviceName, deviceId);
+            switch (deviceType) {
+                case "Keyboard":
+                    handleDeviceConnection(eventType, KEYBOARD_CONNECTED_EVENT, KEYBOARD_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
+                case "Mouse":
+                    handleDeviceConnection(eventType, MOUSE_CONNECTED_EVENT, MOUSE_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
+                case "GameController":
+                    handleDeviceConnection(eventType, CONTROLLER_CONNECTED_EVENT, CONTROLLER_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
+                case "DiskDrive":
+                    handleDeviceConnection(eventType, DRIVE_CONNECTED_EVENT, DRIVE_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
+                case "AudioEndpoint":
+                    handleDeviceConnection(eventType, AUDIO_CONNECTED_EVENT, AUDIO_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
+                case "Printer":
+                    handleDeviceConnection(eventType, PRINTER_CONNECTED_EVENT, PRINTER_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
 
-				case "USB":
-				    handleDeviceConnection(eventType, USB_CONNECTED_EVENT, USB_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
+                case "USB":
+                    handleDeviceConnection(eventType, USB_CONNECTED_EVENT, USB_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
 
-				case "Media":
-				    handleDeviceConnection(eventType, MEDIA_CONNECTED_EVENT, MEDIA_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
+                case "Media":
+                    handleDeviceConnection(eventType, MEDIA_CONNECTED_EVENT, MEDIA_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
 
-				case "HIDClass":
-				    handleDeviceConnection(eventType, HID_CONNECTED_EVENT, HID_DISCONNECTED_EVENT, deviceName, deviceId);
-				    return;
-				break;
+                case "HIDClass":
+                    handleDeviceConnection(eventType, HID_CONNECTED_EVENT, HID_DISCONNECTED_EVENT, deviceName, deviceId);
+                    return;
+                break;
 
-				default:
+                default:
                     logDebug(() => "UNHANDLED DEVICE_TYPE: " + deviceType + "(" + deviceId + ")");
                 break;
-			};
+            };
         }
     }
 
@@ -134,11 +134,11 @@ public class CPHInline {
     }
 
     private void handleDeviceEvent(String eventName, object deviceName, object deviceId) {
-    	logDebug(() => $"{eventName}: {deviceName}");
-    	CPH.SetArgument("device.name", deviceName);
-		CPH.SetArgument("device.id", deviceId);
+        logDebug(() => $"{eventName}: {deviceName}");
+        CPH.SetArgument("device.name", deviceName);
+        CPH.SetArgument("device.id", deviceId);
 
-		CPH.TriggerCodeEvent(eventName);
+        CPH.TriggerCodeEvent(eventName);
     }
 
     //----------------------------------------------------------------
@@ -148,42 +148,42 @@ public class CPHInline {
     private bool isDebugEnabled = false;
     private String widgetActionName = "TEMPLATE";
 
-	public bool Execute() {
-		setUp();
-		return process();
-	}
+    public bool Execute() {
+        setUp();
+        return process();
+    }
 
-	private void setUp() {
-		if (isInitialized) {
-    		return;
-    	}
-    	this.widgetActionName = getProperty("actionName", "TEMPLATE");
+    private void setUp() {
+        if (isInitialized) {
+            return;
+        }
+        this.widgetActionName = getProperty("actionName", "TEMPLATE");
 
-    	logInfo(() => "INITIAL SETUP");
-    	init();
+        logInfo(() => "INITIAL SETUP");
+        init();
 
-    	isInitialized = true;
-	}
+        isInitialized = true;
+    }
 
-	private T getProperty<T>(string key, T defaultValue) {
-		bool result = false;
-		T value;
+    private T getProperty<T>(string key, T defaultValue) {
+        bool result = false;
+        T value;
 
-		result = CPH.TryGetArg(key, out value);
-		logDebug(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
+        result = CPH.TryGetArg(key, out value);
+        logDebug(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
 
-		return result ? (!value.Equals("") ? value : defaultValue) : defaultValue;
-	}
+        return result ? (!value.Equals("") ? value : defaultValue) : defaultValue;
+    }
 
-	private void logInfo(Func<String> getMessage) {
-		CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
-	}
+    private void logInfo(Func<String> getMessage) {
+        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
+    }
 
-	private void logDebug(Func<String> getMessage) {
-		if (!isDebugEnabled) {
-			return;
-		}
+    private void logDebug(Func<String> getMessage) {
+        if (!isDebugEnabled) {
+            return;
+        }
 
-		CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage());
-	}
+        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage());
+    }
 }
