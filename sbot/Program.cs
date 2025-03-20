@@ -1,6 +1,8 @@
-﻿namespace sbot
+﻿using System;
+
+namespace sbot
 {
-    internal class Program
+    class Program
     {
         public static void Main(string[] args)
         {

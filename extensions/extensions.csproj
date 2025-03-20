@@ -34,16 +34,36 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Xml"/>
+<!--        <Reference Include="System"/>-->
+<!--        <Reference Include="System.Core"/>-->
+<!--        <Reference Include="System.Data"/>-->
+<!--        <Reference Include="System.Xml"/>-->
+        
+        <!-- .NET v4.0.30319 -->
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Core.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Net.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Net.Http.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\netstandard.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Windows.Forms.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Microsoft.VisualBasic.dll"/>
+        
+        <!-- Streamer.Bot dependencies list -->
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.Plugin.Interface.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.Common.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.Auth.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.EmoteHandlers.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.Core.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Newtonsoft.Json.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Twitch.Common.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\websocket-sharp.dll"/>
+        <Reference Include="System.Management">
+          <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Management\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Management.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="CPH.cs" />
-        <Compile Include="CPHInlineBase.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="utils\device\other\SimpleScript.cs" />
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

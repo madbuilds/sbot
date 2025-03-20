@@ -5,7 +5,12 @@
 using System;
 using System.Management;
 
-public class DeviceEvents : CPHInlineBase {
+using Streamer.bot.Plugin.Interface;
+using Streamer.bot.Plugin.Interface.Enums;
+using Streamer.bot.Plugin.Interface.Model;
+using Streamer.bot.Common.Events;
+
+public class CPHInline_DeviceEvents : CPHInlineBase {
     private ManagementEventWatcher watcher;
 
     private const string KEYBOARD_CONNECTED_EVENT      = "system.event.keyboard.connected";
