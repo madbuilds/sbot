@@ -1,14 +1,8 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-// ReSharper disable once UnusedType.Global
 
 using System;
 using System.Management;
-
-using Streamer.bot.Plugin.Interface;
-using Streamer.bot.Plugin.Interface.Enums;
-using Streamer.bot.Plugin.Interface.Model;
-using Streamer.bot.Common.Events;
 
 public class CPHInline_DeviceEvents : CPHInlineBase {
     private ManagementEventWatcher watcher;

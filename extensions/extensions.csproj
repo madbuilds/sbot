@@ -3,6 +3,9 @@
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
             Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
     <PropertyGroup>
+        <LangVersion>17.0</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{C82410FC-3844-4384-9A59-24378EF1488D}</ProjectGuid>
@@ -58,11 +61,9 @@
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Newtonsoft.Json.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Twitch.Common.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\websocket-sharp.dll"/>
-        <Reference Include="System.Management">
-          <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Management\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Management.dll</HintPath>
-        </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="GlobalUsings.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
