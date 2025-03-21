@@ -32,7 +32,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
     private void init() {
         WqlEventQuery query = new WqlEventQuery("SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'");
         watcher = new ManagementEventWatcher(query);
-        watcher.EventArrived += new EventArrivedEventHandler(deviceEventArrived);
+        watcher.EventArrived += deviceEventArrived;
 
         CPH.RegisterCustomTrigger("Any: CONNECTED",    ANY_CONNECTED_EVENT,    new [] { "System", "onDeviceEvent" });
         CPH.RegisterCustomTrigger("Any: DISCONNECTED", ANY_DISCONNECTED_EVENT, new [] { "System", "onDeviceEvent" });
