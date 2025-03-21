@@ -14,11 +14,11 @@ body:
     validations:
       required: true
   - type: textarea
-    id: reprod
+    id: reproduce
     attributes:
-      label: "Reproduction steps"
+      label: "Reproduction Steps"
       description: Please enter an explicit description of your issue
-      value: |
+      placeholder: |
         1. Go to '...'
         2. Click on '....'
         3. Scroll down to '....'
@@ -41,7 +41,7 @@ body:
       label: "Screenshots"
       description: If applicable, add screenshots to help explain your problem.
       value: |
-        ![DESCRIPTION](LINK.png)
+        ![DESCRIPTION](SCREEN.png)
       render: bash
     validations:
       required: false
