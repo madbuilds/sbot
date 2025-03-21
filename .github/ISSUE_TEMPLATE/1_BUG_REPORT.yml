@@ -1,6 +1,6 @@
-﻿name: "🐛 Bug Report"
+﻿name: "🐞 Bug Report"
 description: "If something isn't working as expected \U0001F914"
-title: "🐛 [BUG] - <title>"
+title: "🐞 [BUG] - "
 labels: [
   "bug"
 ]
@@ -23,7 +23,6 @@ body:
         2. Click on '....'
         3. Scroll down to '....'
         4. See error
-      render: bash
     validations:
       required: true
   - type: textarea
@@ -31,8 +30,8 @@ body:
     attributes:
       label: "Possible Fixes"
       description: Expected behavior/code
-      value: A clear and concise description of what you expected to happen (or code).
-      render: bash
+      placeholder: A clear and concise description of what you expected to happen (or code).
+      render: csharp
     validations:
       required: false
   - type: textarea
@@ -40,9 +39,8 @@ body:
     attributes:
       label: "Screenshots"
       description: If applicable, add screenshots to help explain your problem.
-      value: |
+      placeholder: |
         ![DESCRIPTION](SCREEN.png)
-      render: bash
     validations:
       required: false
   - type: textarea
