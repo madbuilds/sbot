@@ -1,5 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
+#pragma warning disable CS0114
 
 using System;
 using System.Management;
@@ -58,7 +59,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
 
     private bool process() {
         watcher.Start();
-        logDebug(() => "START DEVICE EVENT WATCHER");
+        DEBUG(() => "START DEVICE EVENT WATCHER");
 
         return true;
     }
@@ -70,11 +71,9 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
         var deviceType = instance["PNPClass"];
         var deviceId = instance["PNPDeviceID"];
 
-        if (isDebugEnabled) {
-            logDebug(() => "=================================");
-            foreach (var property in instance.Properties) {
-                logDebug(() => $"{property.Name}: {property.Value}");
-            }
+        DEBUG(() => "=================================");
+        foreach (var property in instance.Properties) {
+            DEBUG(() => $"{property.Name}: {property.Value}");
         }
 
         if (deviceType == null) return;
@@ -108,7 +107,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
                 handleDeviceConnection(eventType, HID_CONNECTED_EVENT, HID_DISCONNECTED_EVENT, deviceName, deviceId);
                 return;
             default:
-                logDebug(() => "UNHANDLED DEVICE_TYPE: " + deviceType + "(" + deviceId + ")");
+                DEBUG(() => "UNHANDLED DEVICE_TYPE: " + deviceType + "(" + deviceId + ")");
                 return;
         }
     }
@@ -122,7 +121,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
     }
 
     private void handleDeviceEvent(string eventName, object deviceName, object deviceId) {
-        logDebug(() => $"{eventName}: {deviceName}");
+        DEBUG(() => $"{eventName}: {deviceName}");
         CPH.SetArgument("device.name", deviceName);
         CPH.SetArgument("device.id", deviceId);
 
@@ -136,6 +135,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
     private bool isInitialized;
     private string widgetActionName = "TEMPLATE";
 
+    // ReSharper disable once UnusedMember.Global
     public bool Execute() {
         setUp();
         return process();
@@ -145,17 +145,18 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
         if (isInitialized) {
             return;
         }
-        this.widgetActionName = getProperty("actionName", "TEMPLATE");
+        widgetActionName = getProperty("actionName", "TEMPLATE");
 
-        logInfo(() => "INITIAL SETUP");
+        INFO(() => "INITIAL SETUP");
         init();
 
         isInitialized = true;
     }
 
+    // ReSharper disable once UnusedMember.Local
     private T getProperty<T>(string key, T defaultValue) {
         var result = CPH.TryGetArg(key, out T value);
-        logDebug(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
+        DEBUG(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
 
         return result ? 
             !value.Equals("") ? 
@@ -163,16 +164,28 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
                 : defaultValue 
             : defaultValue;
     }
-
-    private void logInfo(Func<string> getMessage) {
-        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
-    }
-
-    private void logDebug(Func<string> getMessage) {
+    
+    // ReSharper disable once UnusedMember.Local
+    private void DEBUG(Func<string> getMessage) {
         if (!isDebugEnabled) {
             return;
         }
 
-        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage());
+        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage);
+    }
+    
+    // ReSharper disable once UnusedMember.Local
+    private void INFO(Func<string> getMessage) {
+        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage);
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void WARN(Func<string> getMessage) {
+        CPH.LogWarn("WARN : " + widgetActionName + " :: " + getMessage);
+    }
+    
+    // ReSharper disable once UnusedMember.Local
+    private void ERROR(Func<string> getMessage) { 
+        CPH.LogError("ERROR: " + widgetActionName + " :: " + getMessage);
     }
 }
