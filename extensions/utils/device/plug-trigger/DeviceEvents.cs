@@ -5,6 +5,10 @@
 using System;
 using System.Management;
 
+/**
+ * [DEVICE] EVENT
+ */
+// ReSharper disable once UnusedType.Global
 public class CPHInline_DeviceEvents : CPHInlineBase {
     private ManagementEventWatcher watcher;
 
@@ -30,7 +34,7 @@ public class CPHInline_DeviceEvents : CPHInlineBase {
     private const string ANY_DISCONNECTED_EVENT        = "system.event.hid.disconnected";
 
     private void init() {
-        WqlEventQuery query = new WqlEventQuery("SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'");
+        var query = new WqlEventQuery("SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'");
         watcher = new ManagementEventWatcher(query);
         watcher.EventArrived += deviceEventArrived;
 

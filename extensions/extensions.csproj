@@ -41,10 +41,11 @@
         <!-- .NET v4.0.30319 -->
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.dll"/>
-        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Core.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Net.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Net.Http.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Core.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Management.dll"/>
+        <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Runtime.Serialization.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\netstandard.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Windows.Forms.dll"/>
         <Reference Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Microsoft.VisualBasic.dll"/>
@@ -54,16 +55,28 @@
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.Common.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.Auth.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Streamer.bot.EmoteHandlers.dll"/>
+        
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Microsoft.Bcl.AsyncInterfaces.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\System.Text.Json.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\System.Text.Encodings.Web.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\System.Threading.Tasks.Extensions.dll"/>
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Newtonsoft.Json.dll"/>
+
+        <Reference Include="C:\Users\admin\Desktop\streamer.bot\dlls\Q42.HueApi.dll"/>
+        
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.Core.dll"/>
-        <Reference Include="C:\Users\admin\Desktop\streamer.bot\Newtonsoft.Json.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Twitch.Common.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\websocket-sharp.dll"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="GlobalUsings.cs" />
+        <Compile Include="integrations\home\hue\HueAPI.cs" />
+        <Compile Include="integrations\messengers\discord\DiscordAPI.cs" />
+        <Compile Include="integrations\messengers\telegram\TelegramAPI.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Template.cs" />
+        <Compile Include="utils\chat\bypass-filter\BypassFilter.cs" />
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
