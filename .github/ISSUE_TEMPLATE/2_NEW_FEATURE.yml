@@ -21,22 +21,6 @@ body:
       placeholder: Describe in a few lines your feature request
     validations:
       required: true
-  - type: input
-    id: implementation_pr
-    attributes:
-      label: "PullRequest with implementation"
-      description: Pull request used
-      placeholder: "#Pull Request URL"
-    validations:
-      required: false
-  - type: textarea
-    id: child_tasks
-    attributes:
-      label: "Child Tasks"
-      description: Common issues
-      placeholder: "list of task URL's"
-    validations:
-      required: false
   - type: textarea
     id: basic_usage
     attributes:
