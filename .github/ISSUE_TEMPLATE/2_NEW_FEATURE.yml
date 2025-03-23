@@ -1,0 +1,57 @@
+﻿name: "💡 Feature Request"
+description: Create ticket for a new feature request
+title: "💡 [REQUEST] - "
+labels: [
+  "question"
+]
+body:
+  - type: input
+    id: start_date
+    attributes:
+      label: "Start Date"
+      description: Start of development
+      placeholder: "DD.MM.YYYY"
+    validations:
+      required: false
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Summary"
+      description: Provide a brief explanation of the feature
+      placeholder: Describe in a few lines your feature request
+    validations:
+      required: true
+  - type: input
+    id: implementation_pr
+    attributes:
+      label: "PullRequest with implementation"
+      description: Pull request used
+      placeholder: "#Pull Request URL"
+    validations:
+      required: false
+  - type: textarea
+    id: child_tasks
+    attributes:
+      label: "Child Tasks"
+      description: Common issues
+      placeholder: "list of task URL's"
+    validations:
+      required: false
+  - type: textarea
+    id: basic_usage
+    attributes:
+      label: "Basic Usage"
+      description: Indicate here some basic examples of your feature.
+      placeholder: |
+        A few specific words about your feature request.
+        how do you see this feature to work and use for.
+    validations:
+      required: true
+  - type: textarea
+    id: unresolved_question
+    attributes:
+      label: "Unresolved questions"
+      description: What questions still remain unresolved ?
+      placeholder: Identify any unresolved issues.
+    validations:
+      required: false
