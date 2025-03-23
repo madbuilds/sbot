@@ -49,8 +49,8 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
     private void init() {
         includeJsons = getProperty("discord.json.included", true);
         discordToken = getProperty("discord.token", "DUMMY_TOKEN");
-        getDiscordServers();
-        connectToGateway();
+        _ = getDiscordServers();
+        _ = connectToGateway();
     }
     
     //----------------------------------------------------------------
@@ -66,7 +66,7 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
             return false;
         }
         
-        updateGuildUserRole(overwrite, guildId, userId, roleId);
+        _ = updateGuildUserRole(overwrite, guildId, userId, roleId);
         return true;
     }
     
@@ -94,11 +94,11 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         DEBUG(() => $"EVENT: MESSAGE_RECEIVED({discordMessage.channelId}): {discordMessage.Author.userName} > {discordMessage.content}");
         
         var properties = new Dictionary<string, object> ().addAll(discordMessage.toCollection());
-        var channel = serverChannels.getValueOrDefault($"{discordMessage.guildId}_{discordMessage.channelId}", null);
+        var channel = serverChannels.getValueOrDefault($"{discordMessage.guildId}_{discordMessage.channelId}");
         var parentId = channel?.parentId ?? "NO_CATEGORY";
         
         if (channel != null && channel.typeName.Contains("THREAD")) {
-            var parentChannel = serverChannels.getValueOrDefault($"{discordMessage.guildId}_{parentId}", null);
+            var parentChannel = serverChannels.getValueOrDefault($"{discordMessage.guildId}_{parentId}");
             var parentCategory = parentChannel?.parentId ?? "NO_CATEGORY";
             
             CPH.TriggerCodeEvent(THREAD_MESSAGE_EVENT + parentId, properties);
@@ -118,11 +118,11 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         DEBUG(() => $"EVENT: REACTION ADD {discordReaction.userId}");
 
         var properties = new Dictionary<string, object> ().addAll(discordReaction.toCollection());
-        var channel = serverChannels.getValueOrDefault($"{discordReaction.guildId}_{discordReaction.channelId}", null);
+        var channel = serverChannels.getValueOrDefault($"{discordReaction.guildId}_{discordReaction.channelId}");
         var parentId = channel?.parentId ?? "NO_CATEGORY";
         
         if (channel != null && channel.typeName.Contains("THREAD")) {
-            var parentChannel = serverChannels.getValueOrDefault($"{discordReaction.guildId}_{parentId}", null);
+            var parentChannel = serverChannels.getValueOrDefault($"{discordReaction.guildId}_{parentId}");
             var parentCategory = parentChannel?.parentId ?? "NO_CATEGORY";
             
             CPH.TriggerCodeEvent(MESSAGE_REACTION_ADDED + parentId, properties);
@@ -188,6 +188,7 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
             
             // set C# Discord Api instance into Entity for API calls
             var cdaProperty = typeof(T).GetProperty("cda");
+            // ReSharper disable once InvertIf
             if (cdaProperty != null) {
                 var setCdaMethod = typeof(T).GetMethod("set_cda");
                 if (setCdaMethod != null) {
@@ -333,7 +334,7 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
     }
     
     private async Task connectToDiscordGateway() {
-        if(webSocket != null && webSocket.State == WebSocketState.Open) {
+        if(webSocket is { State: WebSocketState.Open }) {
             DEBUG(() => "GATEWAY: Closing connection on init");
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
             webSocket.Dispose();
@@ -368,17 +369,17 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         
         var receiveBuffer = new byte[4096];
         while (webSocket.State == WebSocketState.Open) {
-            DEBUG(() => "GATEWAY: waiting for incoming messages while connection openned");
+            DEBUG(() => "GATEWAY: waiting for incoming messages while connection opened");
             
-            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
+            var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
             if (result.MessageType == WebSocketMessageType.Close) {
                 await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 DEBUG(() => "GATEWAY: DisCONNECTED from Discord GATEWAY");
                 throw new Exception("webSocket connection closed");
-            } else {
-                var receivedMessage = Encoding.UTF8.GetString(receiveBuffer, 0, result.Count);
-                handleWSMessage(receivedMessage);
             }
+
+            var receivedMessage = Encoding.UTF8.GetString(receiveBuffer, 0, result.Count);
+            handleWSMessage(receivedMessage);
         }
     }
     
@@ -470,9 +471,9 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
             await webSocket.SendAsync(bytesToSend, WebSocketMessageType.Text, true, CancellationToken.None);
             DEBUG(() => "GATEWAY: Payload been sent");
         } catch (ObjectDisposedException e) {
-            DEBUG(() => "GATEWAY: webSocket is Disposed and cannot be executed: {e.Message}");
+            DEBUG(() => $"GATEWAY: webSocket is Disposed and cannot be executed: {e.Message}");
         } catch (Exception e) {
-            DEBUG(() => "GATEWAY: webSocket Error: {e.Message}");
+            DEBUG(() => $"GATEWAY: webSocket Error: {e.Message}");
         }
     }
     
@@ -486,14 +487,17 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
             getRequest.Method = "GET";
             getRequest.Headers.Add("Authorization", "Bot " + discordToken);
             
-            try {
-                using (var response = (HttpWebResponse)await getRequest.GetResponseAsync()) {
-                    using (var stream = response.GetResponseStream()) {
-                        var reader = new StreamReader(stream, Encoding.UTF8);
-                        var memberJson = await reader.ReadToEndAsync();
-                        currentRoles = JsonConvert.DeserializeObject<DiscordMember>(memberJson).roles;
-                    }
+            try
+            {
+                using var response = (HttpWebResponse)await getRequest.GetResponseAsync();
+                using var stream = response.GetResponseStream();
+                if (stream is null) {
+                    return;
                 }
+                
+                var reader = new StreamReader(stream, Encoding.UTF8);
+                var memberJson = await reader.ReadToEndAsync();
+                currentRoles = JsonConvert.DeserializeObject<DiscordMember>(memberJson).roles;
             } catch (Exception e) {
                 DEBUG(() => $"CANNOT GET ROLES: {e.Message}");
                 return;
@@ -527,17 +531,20 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         patchRequest.ContentLength = byteArray.Length;
         
         using (var dataStream = patchRequest.GetRequestStream()) {
-            dataStream.Write(byteArray, 0, byteArray.Length);
+            await dataStream.WriteAsync(byteArray, 0, byteArray.Length);
         }
         
-        try {
-            using (var response = (HttpWebResponse)await patchRequest.GetResponseAsync()) {
-                using (var stream = response.GetResponseStream()) {
-                    var reader = new StreamReader(stream, Encoding.UTF8);
-                    var responseText = await reader.ReadToEndAsync();
-                    DEBUG(() => $"ROLE ASSIGNED TO USER {userId} IN {guildId}: {responseText}");
-                }
+        try
+        {
+            using var response = (HttpWebResponse)await patchRequest.GetResponseAsync();
+            using var stream = response.GetResponseStream();
+            if (stream is null) {
+                return;
             }
+            
+            var reader = new StreamReader(stream, Encoding.UTF8);
+            var responseText = await reader.ReadToEndAsync();
+            DEBUG(() => $"ROLE ASSIGNED TO USER {userId} IN {guildId}: {responseText}");
         } catch (Exception e) {
             DEBUG(() => $"CANNOT SET ROLE: {e.Message}");
         }
@@ -552,14 +559,17 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         request.Method = "GET";
         request.Headers.Add("Authorization", "Bot " + discordToken);
 
-        try {
-            using (var response = (HttpWebResponse) request.GetResponse()) {
-                using (var stream = response.GetResponseStream()) {
-                    var reader = new StreamReader(stream, Encoding.UTF8);
-                    var responseText = reader.ReadToEnd();
-                    return JsonConvert.DeserializeObject<DiscordChannel>(responseText);
-                }
+        try
+        {
+            using var response = (HttpWebResponse) request.GetResponse();
+            using var stream = response.GetResponseStream();
+            if (stream is null) {
+                return null;
             }
+            
+            var reader = new StreamReader(stream, Encoding.UTF8);
+            var responseText = reader.ReadToEnd();
+            return JsonConvert.DeserializeObject<DiscordChannel>(responseText);
         } catch (Exception e) {
             DEBUG(() => $"CANNOT GET CHANNEL: {e.Message}");
             return null;
@@ -574,16 +584,17 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         request.Headers.Add("Authorization", "Bot " + discordToken);
         
         try {
-            using (var response = (HttpWebResponse) await request.GetResponseAsync()) {
-                using (var stream = response.GetResponseStream()) {
-                    StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                    string responseText = await reader.ReadToEndAsync();
-                    List<DiscordChannel> channels = JsonConvert.DeserializeObject<List<DiscordChannel>>(responseText);
-                
-                    foreach (var channel in channels) {
-                        getDiscordServerChannels(channel.id, channel.name);
-                    }
-                }
+            using var response = (HttpWebResponse) await request.GetResponseAsync();
+            using var stream = response.GetResponseStream();
+            if (stream is null) {
+                return;
+            }
+            
+            var reader = new StreamReader(stream, Encoding.UTF8);
+            var responseText = await reader.ReadToEndAsync();
+            var channels = JsonConvert.DeserializeObject<List<DiscordChannel>>(responseText);
+            foreach (var channel in channels) {
+                _ = getDiscordServerChannels(channel.id, channel.name);
             }
         } catch (Exception e) {
             DEBUG(() => $"CANNOT REGISTER SERVERS: {e.Message}");
@@ -601,130 +612,132 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
         request.Headers.Add("Authorization", "Bot " + discordToken);
         
         try {
-            using (var response = (HttpWebResponse) await request.GetResponseAsync()) {
-                using (var stream = response.GetResponseStream()) {
-                    var reader = new StreamReader(stream, Encoding.UTF8);
-                    var responseText = await reader.ReadToEndAsync();
-                    var channels = JsonConvert.DeserializeObject<List<DiscordChannel>>(responseText, new JsonSerializerSettings {
-                        Converters = new List<JsonConverter> { new StringEnumConverter() },
-                        ContractResolver = new DefaultContractResolver(),
-                        StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
-                    });
+            using var response = (HttpWebResponse) await request.GetResponseAsync();
+            using var stream = response.GetResponseStream();
+            if (stream is null) {
+                return;
+            }
+            
+            var reader = new StreamReader(stream, Encoding.UTF8);
+            var responseText = await reader.ReadToEndAsync();
+            var channels = JsonConvert.DeserializeObject<List<DiscordChannel>>(responseText, new JsonSerializerSettings {
+                Converters = new List<JsonConverter> { new StringEnumConverter() },
+                ContractResolver = new DefaultContractResolver(),
+                StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
+            });
                 
-                    DEBUG(() => "LIST OF AVAILABLE CHANNELS");
-                    var categoryGroups   = new Dictionary<string, string>();
-                    var categoryChannels = new Dictionary<string, List<DiscordChannel>>();
+            DEBUG(() => "LIST OF AVAILABLE CHANNELS");
+            var categoryGroups   = new Dictionary<string, string>();
+            var categoryChannels = new Dictionary<string, List<DiscordChannel>>();
                     
-                    if (!serverNames.ContainsKey(guildId)) {
-                        serverNames[guildId] = guildName;
+            if (!serverNames.ContainsKey(guildId)) {
+                serverNames[guildId] = guildName;
+            }
+                    
+            foreach (var channel in channels) {
+                var categoryId = channel.parentId ?? "NO_CATEGORY";
+                if (channel.type != 4) { // is Channel
+                    if (!categoryChannels.ContainsKey(categoryId)) {
+                        categoryChannels[categoryId] = [];
                     }
-                    
-                    foreach (var channel in channels) {
-                        var categoryId = channel.parentId ?? "NO_CATEGORY";
-                        if (channel.type != 4) { // is Channel
-                            if (!categoryChannels.ContainsKey(categoryId)) {
-                                categoryChannels[categoryId] = [];
-                            }
-                            categoryChannels[categoryId].Add(channel);
-                            serverChannels[guildId + "_" + channel.id] = channel;
-                        } else { // is Category
-                            if (!categoryGroups.ContainsKey(channel.id)) {
-                                categoryGroups[channel.id] = channel.name;
-                            }
-                        }
+                    categoryChannels[categoryId].Add(channel);
+                    serverChannels[guildId + "_" + channel.id] = channel;
+                } else { // is Category
+                    if (!categoryGroups.ContainsKey(channel.id)) {
+                        categoryGroups[channel.id] = channel.name;
                     }
-                    
-                    foreach (var category in categoryChannels) {
-                        var categoryName = category.Key != "NO_CATEGORY" ? categoryGroups[category.Key] : "NO_CATEGORY";
-                        DEBUG(() => $"CATEGORY: {categoryName}");
-                        
-                        var isTextChannels = false;
-                        var isVoiceChannels = false;
-                        var isThreadChannels = false;
-                        foreach (var channel in category.Value) {
-                            string channelType;
-                            switch (channel.type) {
-                                case 0: // Text Channel
-                                    isTextChannels = true;
-                                    isThreadChannels = true;
-                                    channelType = "[T]";
-                                    registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
-                                    DEBUG(() => $"TEXT  CHANNEL   : {channel.id} - {channel.name}");
-                                break;
-                                case 2: // Voice Channel
-                                    isTextChannels = true;
-                                    isVoiceChannels = true;
-                                    channelType = "[V]";
-                                    registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_GENERIC_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_JOIN_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_LEFT_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_MOVE_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_UPDATE_EVENT, channelType, channel, guildName, categoryName);
-                                    DEBUG(() => $"VOICE CHANNEL   : {channel.id} - {channel.name}");
-                                break;
-                                case 5: // Announcement Channel
-                                    isTextChannels = true;
-                                    isThreadChannels = true;
-                                    channelType = "[A]";
-                                    registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
-                                    DEBUG(() => $"ANNOUNCE CHANNEL: {channel.id} - {channel.name}");
-                                break;
-                                case 13: // Stage Channel
-                                    isTextChannels = true;
-                                    isVoiceChannels = true;
-                                    channelType = "[S]";
-                                    registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_GENERIC_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_JOIN_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_LEFT_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_MOVE_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(VOICE_UPDATE_EVENT, channelType, channel, guildName, categoryName);
-                                    DEBUG(() => $"STAGE CHANNEL   : {channel.id} - {channel.name}");
-                                break;
-                                case 15: // Forum Channel
-                                    isThreadChannels = true;
-                                    channelType = "[F]";
-                                    registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
-                                    registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
-                                    DEBUG(() => $"FORUM CHANNEL   : {channel.id} - {channel.name}");
-                                break;
-                                default:
-                                    DEBUG(() => $"UNKNOWN CHANNEL : {channel.id} - {channel.name}");
-                                break;
-                            }
-                        }
-                        
-                        if (isTextChannels) {
-                            registerCategoryEvent(MESSAGE_RECEIVED_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
-                        }
-                        if (isThreadChannels) {
-                            registerCategoryEvent(THREAD_MESSAGE_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
-                        }
-                        if (isVoiceChannels) {
-                            registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
-                            registerCategoryEvent(VOICE_GENERIC_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(VOICE_JOIN_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(VOICE_LEFT_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(VOICE_MOVE_EVENT, guildName, category.Key, categoryName);
-                            registerCategoryEvent(VOICE_UPDATE_EVENT, guildName, category.Key, categoryName);
-                        }
-                        DEBUG(() => $"{categoryName}: REGISTERED");
-                    }
-                    
-                    registerServerEvent(MEMBER_JOIN, guildId, guildName);
-                    registerServerEvent(MEMBER_LEFT, guildId, guildName);
-                    registerServerEvent(MEMBER_UPDATE, guildId, guildName);
                 }
             }
+                    
+            foreach (var category in categoryChannels) {
+                var categoryName = category.Key != "NO_CATEGORY" ? categoryGroups[category.Key] : "NO_CATEGORY";
+                DEBUG(() => $"CATEGORY: {categoryName}");
+                        
+                var isTextChannels = false;
+                var isVoiceChannels = false;
+                var isThreadChannels = false;
+                foreach (var channel in category.Value) {
+                    string channelType;
+                    switch (channel.type) {
+                        case 0: // Text Channel
+                            isTextChannels = true;
+                            isThreadChannels = true;
+                            channelType = "[T]";
+                            registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
+                            DEBUG(() => $"TEXT  CHANNEL   : {channel.id} - {channel.name}");
+                            break;
+                        case 2: // Voice Channel
+                            isTextChannels = true;
+                            isVoiceChannels = true;
+                            channelType = "[V]";
+                            registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_GENERIC_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_JOIN_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_LEFT_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_MOVE_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_UPDATE_EVENT, channelType, channel, guildName, categoryName);
+                            DEBUG(() => $"VOICE CHANNEL   : {channel.id} - {channel.name}");
+                            break;
+                        case 5: // Announcement Channel
+                            isTextChannels = true;
+                            isThreadChannels = true;
+                            channelType = "[A]";
+                            registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
+                            DEBUG(() => $"ANNOUNCE CHANNEL: {channel.id} - {channel.name}");
+                            break;
+                        case 13: // Stage Channel
+                            isTextChannels = true;
+                            isVoiceChannels = true;
+                            channelType = "[S]";
+                            registerEvent(MESSAGE_RECEIVED_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_GENERIC_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_JOIN_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_LEFT_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_MOVE_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(VOICE_UPDATE_EVENT, channelType, channel, guildName, categoryName);
+                            DEBUG(() => $"STAGE CHANNEL   : {channel.id} - {channel.name}");
+                            break;
+                        case 15: // Forum Channel
+                            isThreadChannels = true;
+                            channelType = "[F]";
+                            registerEvent(THREAD_MESSAGE_EVENT, channelType, channel, guildName, categoryName);
+                            registerEvent(MESSAGE_REACTION_ADDED, channelType, channel, guildName, categoryName);
+                            DEBUG(() => $"FORUM CHANNEL   : {channel.id} - {channel.name}");
+                            break;
+                        default:
+                            DEBUG(() => $"UNKNOWN CHANNEL : {channel.id} - {channel.name}");
+                            break;
+                    }
+                }
+                        
+                if (isTextChannels) {
+                    registerCategoryEvent(MESSAGE_RECEIVED_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
+                }
+                if (isThreadChannels) {
+                    registerCategoryEvent(THREAD_MESSAGE_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
+                }
+                if (isVoiceChannels) {
+                    registerCategoryEvent(MESSAGE_REACTION_ADDED, guildName, category.Key, categoryName);
+                    registerCategoryEvent(VOICE_GENERIC_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(VOICE_JOIN_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(VOICE_LEFT_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(VOICE_MOVE_EVENT, guildName, category.Key, categoryName);
+                    registerCategoryEvent(VOICE_UPDATE_EVENT, guildName, category.Key, categoryName);
+                }
+                DEBUG(() => $"{categoryName}: REGISTERED");
+            }
+                    
+            registerServerEvent(MEMBER_JOIN, guildId, guildName);
+            registerServerEvent(MEMBER_LEFT, guildId, guildName);
+            registerServerEvent(MEMBER_UPDATE, guildId, guildName);
         } catch (Exception e) {
             DEBUG(() => $"CANNOT REGISTER CHANNELS: {e.Message}");
         }
@@ -971,7 +984,7 @@ public class CPHInline_DiscordAPI : CPHInlineBase {
                 { "discord.server.name", serverName }
             };
                 
-            var channel = serverChannels.getValueOrDefault($"{guildId}_{channelId}", null);
+            var channel = serverChannels.getValueOrDefault($"{guildId}_{channelId}");
             if (channel == null) {
                 channel = cda.getDiscordChannelById(channelId);
                 serverChannels[$"{guildId}_{channelId}"] = channel;
