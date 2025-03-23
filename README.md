@@ -10,4 +10,4 @@ asd
 
 --------------------
 
-**[`^        back to top        ^`](#streamerbot---extensions)**
+**[`🔝⇧🔝⇧     back to top     ⇧🔝⇧🔝`](#streamerbot---extensions)**
