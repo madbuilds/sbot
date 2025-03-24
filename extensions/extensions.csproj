@@ -81,6 +81,10 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="integrations\home\hue\README.md" />
+      <Content Include="integrations\messengers\discord\README.md" />
+      <Content Include="integrations\messengers\telegram\README.md" />
+      <Content Include="utils\chat\bypass-filter\README.md" />
+      <Content Include="utils\device\plug-trigger\README.md" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
