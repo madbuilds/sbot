@@ -72,5 +72,5 @@
   hue.brightness - optional (values from 0 to 254)
   
   if saturation/brightness is not set, 
-  then it will not be changed when action is executed 
+  then light saturation/brightness will not be changed 
   ```
