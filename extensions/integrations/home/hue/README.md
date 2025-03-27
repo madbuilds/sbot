@@ -52,17 +52,17 @@
 - does color of the light changed?
 
 # Available Methods
-- ### TurnOnHueID
+- #### TurnOnHueID
   Executes method to turn your Device ON by it's `HUE ID`
   ```text
   hue.id - mandatory
   ```
-- ### TurnOffHueID 
+- #### TurnOffHueID 
   Executes method to Turn your device OFF by it's `HUE ID`
   ```text
   hue.id - mandatory
   ```
-- ### ChangeLightColor
+- #### ChangeLightColor
   Executes method to CHANGE light color/brightness/saturation
   ```text
   hue.id         - mandatory
