@@ -62,7 +62,7 @@
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\System.Threading.Tasks.Extensions.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\Newtonsoft.Json.dll"/>
 
-        <Reference Include="C:\Users\admin\Desktop\streamer.bot\dlls\Q42.HueApi.dll"/>
+        <Reference Include="./integrations/home/hue/lib/Q42.HueApi.dll"/>
         
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.dll"/>
         <Reference Include="C:\Users\admin\Desktop\streamer.bot\NAudio.Core.dll"/>
@@ -80,6 +80,7 @@
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
     <ItemGroup>
+      <Content Include="integrations\home\hue\lib\Q42.HueApi.dll" />
       <Content Include="integrations\home\hue\README.md" />
       <Content Include="integrations\messengers\discord\README.md" />
       <Content Include="integrations\messengers\telegram\README.md" />
