@@ -3,7 +3,7 @@
 - [Discord: Link to Library Discussion](https://discord.com/channels/834650675224248362/1295383440291659776)
 
 # Installation
-- download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll?raw=true) v3.23.1.0 (.net 4.5)
+- download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.23.1.0 (.net 4.5)
   - created by: https://github.com/michielpost/Q42.HueApi 
 - copy this downloaded lib to - **STREMER_BOT_INSTALLATION_PATH**/dlls/Q42.HueApi.dll
 - follow one of the variants below (#1 or #2):
