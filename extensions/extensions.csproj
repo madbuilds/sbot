@@ -3,7 +3,16 @@
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
             Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
     <PropertyGroup>
+        <AssemblyTitle>extensions</AssemblyTitle>
+        <Description>list of extensions for SBot</Description>
+        <Company>JUST_A_COMPANY</Company>
+        <Product>extensions</Product>
+        <Copyright>Copyright ©  2025</Copyright>
+        
         <LangVersion>17.0</LangVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <ProjectGuid>C82410FC-3844-4384-9A59-24378EF1488D</ProjectGuid>
     </PropertyGroup>
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
