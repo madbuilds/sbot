@@ -2,6 +2,8 @@
 
 - [Discord: Link to Library Discussion](https://discord.com/channels/834650675224248362/1295383440291659776)
 
+![DEMO](./docs/demo.gif)
+
 # Installation
 - download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.23.1.0 (.net 4.5)
   - created by: https://github.com/michielpost/Q42.HueApi look in NuGet packages
