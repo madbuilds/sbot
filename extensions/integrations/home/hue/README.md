@@ -6,7 +6,6 @@
 - download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.23.1.0 (.net 4.5)
   - created by: https://github.com/michielpost/Q42.HueApi look in NuGet packages
 - copy this downloaded lib to - **STREMER_BOT_INSTALLATION_PATH**/dlls/Q42.HueApi.dll
-- follow one of the variants below (#1 or #2):
 - copy below import code and paste into Streamer.Bot 
 - ```text
   import code
