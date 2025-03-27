@@ -10,6 +10,9 @@
 - ```text
   import code
   ```
+  ***NOTE:*** \
+  *if you want to just copy C# code instead make sure you rename class*\ 
+  *the class name should be `public class CPHInline {}`*
 - get your HUE Bridge IP Address 
   - *can be found in router ot use: https://discovery.meethue.com/* \
     *should be something like: 192.168.\*.\* or similar*
