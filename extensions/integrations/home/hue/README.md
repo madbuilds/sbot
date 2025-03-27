@@ -11,8 +11,8 @@
   import code
   ```
 - get your HUE Bridge IP Address 
-  - *can be found in router ot use: https://discovery.meethue.com/*
-  - should be something like: 192.168.\*.\* or similar
+  - *can be found in router ot use: https://discovery.meethue.com/* \
+    *should be something like: 192.168.\*.\* or similar*
 - paste HUE Bridge IP into: `hue.bridge.ip` variable
   - this variable available inside of `[API] HUE` action
 - make sure library you downloaded is in use by `[API] HUE`
@@ -52,17 +52,17 @@
 - does color of the light changed?
 
 # Available Methods
-- ### TurnOnHueID\ 
+- ### TurnOnHueID
   Executes method to turn your Device ON by it's `HUE ID`
   ```text
   hue.id - mandatory
   ```
-- ### TurnOffHueID\ 
+- ### TurnOffHueID 
   Executes method to Turn your device OFF by it's `HUE ID`
   ```text
   hue.id - mandatory
   ```
-- ### ChangeLightColor\ 
+- ### ChangeLightColor
   Executes method to CHANGE light color/brightness/saturation
   ```text
   hue.id         - mandatory
