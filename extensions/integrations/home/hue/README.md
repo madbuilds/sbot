@@ -4,7 +4,7 @@
 
 # Installation
 - download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.23.1.0 (.net 4.5)
-  - created by: https://github.com/michielpost/Q42.HueApi 
+  - created by: https://github.com/michielpost/Q42.HueApi look in NuGet packages
 - copy this downloaded lib to - **STREMER_BOT_INSTALLATION_PATH**/dlls/Q42.HueApi.dll
 - follow one of the variants below (#1 or #2):
 - copy below import code and paste into Streamer.Bot 
@@ -20,13 +20,13 @@
   - import it manually if it's not: `Execution Code -> References` tab of `Execute Code` sub-action
 - Close Streamer.Bot 
 - Press physical button on HueBridge (Link button on top of the Bridge)
-- Open Streamer.Bot again (**you have not much time HURRY!**)
+- Open Streamer.Bot again after button pressed (**you have not much time HURRY!**)
   - it will connect to your bridge and register
   - once registered you should see some random string\  
     inside of `Global Variables` of Streamer.Bot under `integration.phillipsHue.bridge.appKey`
 - done, now you can use it
 
-# How to Usage
+# How to Use
 - When installation complete (complete Installation steps ok?)
 - Open log file in **STREMER_BOT_INSTALLATION_PATH**/logs/ folder
   - you need last created log file (just sort it by date you will figure it out)
@@ -46,8 +46,31 @@
     [2025-03-22 11:56:50.014 INF] INFO : [API] HUE :: HUE MODEL : LOM001
     [2025-03-22 11:56:50.014 INF] INFO : [API] HUE :: HUE STATE : ON
     ``` 
-- you intrested on `HUE ID`, other details is for you to help to identify what you want
+- you interested on `HUE ID`, other details is for you to help to identify what you want
 - copy `HUE ID` number, and paste into `hue.id` property inside of `[HUE] CHANGE COLOR` action
   - this is just an example action, you are the smart, you know what to do with it
 - hit Test Trigger to execute action
-- does your color of the light changed?
+- does color of the light changed?
+
+# Available Methods
+- ### TurnOnHueID\ 
+  Executes method to turn your Device ON by it's `HUE ID`
+  ```text
+  hue.id - mandatory
+  ```
+- ### TurnOffHueID\ 
+  Executes method to Turn your device OFF by it's `HUE ID`
+  ```text
+  hue.id - mandatory
+  ```
+- ### ChangeLightColor\ 
+  Executes method to CHANGE light color/brightness/saturation
+  ```text
+  hue.id         - mandatory
+  hue.hexColor   - mandatory
+  hue.saturation - optional (values from 0 to 254)
+  hue.brightness - optional (values from 0 to 254)
+  
+  if saturation/brightness is not set, 
+  then it will not be changed when action is executed 
+  ```
