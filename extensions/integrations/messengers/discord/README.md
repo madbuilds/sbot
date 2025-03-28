@@ -1,11 +1,11 @@
 ﻿# Integration: Discord
 
-- [Discord: Link to Library Discussion](https://discord.com/channels/834650675224248362/1299390655780360323)
+- [Discord: Link to Integration Discussion](https://discord.com/channels/834650675224248362/1299390655780360323)
 
 ![DEMO](./docs/demo.gif)
 
 # Installation
-to start using it, you need to create a bot, that will allow to connect to Discord API:
+For using it, Discord Bot needs to be created, it will allow to connect to Discord API:
 1) Open Discord DeveloperPortal: https://discord.com/developers/applications
 2) Create New Application with name you would like to have.
 3) Open newly created Application Settings -> Bot section
