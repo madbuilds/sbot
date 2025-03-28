@@ -80,7 +80,7 @@
   ```
 
 # Changelog
-* 1.2.0 - migration to GitHub: [Pull Request 10]({"gitdown": "gitinfo", "name": "url"}/pull/10)
+* 1.2.0 - migration to GitHub: [Pull Request 10](https://github.com/madbuilds/sbot/pull/10)
   - all code/instructions moved to github for better support
 * 1.1.0 - new methods been created (see in: [available methods](#available-methods) section)
   - [turn on hue by id](#turnonhueid)
