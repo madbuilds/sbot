@@ -29,10 +29,10 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
 # How to Use
 1) once [installation](#installation) steps are complete (is completed right?)
 2) create any action in StreamerBot
-3) in triggers section right click -> custom -> Discord -> find your server -> select trigger you would lke
+3) in triggers section `right click` -> `Custom` -> `Discord` -> `find your server` -> `select trigger you would like`
    ![triggers](./docs/screens/triggers.png)
 4) this bot list all your available servers where discord bot is presented
-   - so it's possible to setup triggers for all servers you want, not just a single one
+   - so it's possible to set up triggers for all servers you want, not just a single one
 
 # Available Methods
 * #### updateGuildUserRole
@@ -44,9 +44,9 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
   discord.role.id        - mandatory
   
   * if discord.roles.override = False - default value 
-    then role.id specified will be added to use
+    then role.id specified will be added to list of user roles
   * if discord.roles.override = True 
-    then role.id will replace ALL roles for the user with role.id
+    then role.id will replace ALL roles for user with role.id
   ```
 
 # Changelog
