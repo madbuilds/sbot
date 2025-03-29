@@ -51,6 +51,8 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
 
 # Changelog
 * 1.5.0 - **migration to GitHub**: [Pull Request: 11](https://github.com/madbuilds/sbot/pull/11)
+  - Refactoring of code
+  - warnings been removed
 * 1.4.0 *(04.11.2024)* - **roles update**
   - Refactoring is been done for handling incoming events
   - Public method been created to set User Roles
