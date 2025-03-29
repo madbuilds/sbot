@@ -50,16 +50,16 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
   ```
 
 # Changelog
-* 1.5.0 - migration to GitHub: [Pull Request: 11](https://github.com/madbuilds/sbot/pull/11)
-* 1.4.0 - roles update
+* 1.5.0 - **migration to GitHub**: [Pull Request: 11](https://github.com/madbuilds/sbot/pull/11)
+* 1.4.0 *(04.11.2024)* - **roles update**
   - Refactoring is been done for handling incoming events
   - Public method been created to set User Roles
     - Required to have "Manage Roles" permission for Discord Bot role 
-* 1.3.0 - emotions update
+* 1.3.0 *(02.11.2024)* - **emotions update**
   - Reaction been added to Message (can listen for emotes in specific channel/category)
   - Member JOIN/LEFT/UPDATE events for the Discord Server
   - List of Roles been included into the variables (contains role Id numbers separated by `,`)
-* 1.2.0 - threads update
+* 1.2.0 *(02.11.2024)* - **threads update**
   - Thread's Channels are now handled properly as well
   - New Trigger is created `THREAD_MESSAGE_RECEIVED` for channels that supports Thread Channels
   - User/Member nitro information been added for showing
@@ -67,7 +67,7 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
     - server member boosting status
     - server member boosting since date
   - enhancements for future changes
-* 1.1.0 - quality of life
+* 1.1.0 *(26.10.2024)* - **quality of life**
   - refactoring was done, now the code is more readable.
   - new triggers been added for Voice Channels:
     - VOICE_JOIN - user joins the voice channel
@@ -79,4 +79,4 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
     - GENERICS for events "per Category", but not only "by Channel", this means those events will receive all text/voice events from all channels in particular category
     - "no category" channels are similar
   - updated to discord API v10
-* 1.0.0 - initial version (basic functionality)
+* 1.0.0 *(25.10.2024)* - **initial version** (basic functionality)
