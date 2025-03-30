@@ -53,6 +53,7 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
   ```
 
 # Changelog
+* 1.5.1 - logs fixed: [Pull Request: 12](https://github.com/madbuilds/sbot/pull/12)
 * 1.5.0 - **migration to GitHub**: [Pull Request: 11](https://github.com/madbuilds/sbot/pull/11)
   - Refactoring of code
   - warnings been removed
