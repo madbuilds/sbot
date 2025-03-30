@@ -55,6 +55,10 @@ public class CPHInline_TEMPLATE : CPHInlineBase {
         isInitialized = true;
     }
     
+    // ReSharper disable once UnusedMember.Global
+    public void Dispose() {
+    }
+    
     private T getProperty<T>(string key, T defaultValue) {
         var result = CPH.TryGetArg(key, out T value);
         DEBUG(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
@@ -71,18 +75,18 @@ public class CPHInline_TEMPLATE : CPHInlineBase {
             return;
         }
 
-        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage);
+        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage());
     }
     
     private void INFO(Func<string> getMessage) {
-        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage);
+        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
     }
 
     private void WARN(Func<string> getMessage) {
-        CPH.LogWarn("WARN : " + widgetActionName + " :: " + getMessage);
+        CPH.LogWarn("WARN : " + widgetActionName + " :: " + getMessage());
     }
     
     private void ERROR(Func<string> getMessage) {
-        CPH.LogError("ERROR: " + widgetActionName + " :: " + getMessage);
+        CPH.LogError("ERROR: " + widgetActionName + " :: " + getMessage());
     }
 }
