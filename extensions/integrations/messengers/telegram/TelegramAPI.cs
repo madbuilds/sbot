@@ -101,6 +101,7 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
 				        update.Message
 			        );
 			        lastUpdateId = update.UpdateId;
+			        continue;
 		        }
 		        
 		        // if Message is not empty then it's a Message from some GroupID
@@ -111,6 +112,7 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
 			        update.Message
 		        );
 		        lastUpdateId = update.UpdateId;
+		        continue;
 	        }
         	
         	// if ChannelPost is not empty then this Message from ChannelID
@@ -122,7 +124,6 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
         		    update.ChannelPost
         		);
         		lastUpdateId = update.UpdateId;
-        		
         		continue;
         	}
         	
