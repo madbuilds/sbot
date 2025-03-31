@@ -57,7 +57,7 @@ For usig it, Telegram Bot needs to be created, which will allow to use Telegram 
   ```
 
 # Changelog
-* 1.4.0 - **migration to GitHub**: [Pull Request: 14](https://github.com/madbuilds/sbot/pull/14)
+* 1.4.0 - **migration to GitHub**: [Pull Request: 15](https://github.com/madbuilds/sbot/pull/15)
 * 1.3.0 *(19.01.2025)* - **parse mode parameter**
 * 1.2.0 *(18.10.2024)* - **extend of sending functionality**
 * 1.1.1 *(17.10.2024)* - [FIX] variable type fix
