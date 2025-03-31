@@ -2,8 +2,8 @@
 **IMPORTANT: Before creating Pull Request please create issue first**\
 Don't forget to link your created issue with pull request in right panel\
 make sure that:
-  - You have done your changes in a separate branch
-  - Branche have descriptive name:
+- You have done your changes in a separate branch
+- Branch have descriptive name:
     - `enhancement/<branch-name>`
     - `feature/<branch-name>`
     - `fix/<branch-name>`

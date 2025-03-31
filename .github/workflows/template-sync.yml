@@ -10,7 +10,7 @@ on:
 
 env:
   SOURCE_BRANCH:     master
-  SOURCE_REPOSITORY: madbuilds/template-java-library
+  SOURCE_REPOSITORY: madbuilds/template-repository
 
   SYNC_APP_ID:        ${{ secrets.MADBUILDS_SYNCAPP_APP_ID }}
   SYNC_CLIENT_ID:     ${{ secrets.MADBUILDS_SYNCAPP_CLIENT_ID }}
