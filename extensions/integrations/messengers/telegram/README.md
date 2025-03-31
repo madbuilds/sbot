@@ -31,7 +31,7 @@ For usig it, Telegram Bot needs to be created, which will allow to use Telegram 
 2) create any action in StreamerBot
 3) in triggers section `right click` -> `Custom` -> `Telegram` -> `select trigger you would like`
    ![triggers](./docs/screens/triggers.png)
-4) don`t forget to invite bot into GROUP/CHANNEL and make it `Admin`
+4) don't forget to invite bot into GROUP/CHANNEL and make it `Admin`
 5) have fun! 🙂
 
 # Available Methods
