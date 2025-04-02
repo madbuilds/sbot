@@ -96,6 +96,8 @@
       <Content Include="integrations\messengers\discord\docs\screens\intents.png" />
       <Content Include="integrations\messengers\discord\docs\screens\triggers.png" />
       <Content Include="integrations\messengers\discord\README.md" />
+      <Content Include="integrations\messengers\telegram\docs\demo.gif" />
+      <Content Include="integrations\messengers\telegram\docs\screens\triggers.png" />
       <Content Include="integrations\messengers\telegram\README.md" />
       <Content Include="utils\chat\bypass-filter\README.md" />
       <Content Include="utils\device\plug-trigger\README.md" />

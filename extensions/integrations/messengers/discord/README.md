@@ -19,10 +19,10 @@ For using it, Discord Bot needs to be created, it will allow to connect to Disco
    ```
    ***NOTE:***\
    *if you want to just copy [C# code](./DiscordAPI.cs) instead make sure you rename class*\
-   *the class name should be `public class CPHInline {}`*
+   *Class name should be: `public class CPHInline {}`*
 5) put your `BotToken` into integration
    - copy `BotToken` from created Discord Bot above
-   - paste it into `[API] Discord` Action, `bot.token` property.
+   - paste it into `[API] Discord` Action, `discord.token` property
 6) Invite your newly created Bot into Discord Server
    - invite link is: https://discord.com/oauth2/authorize?client_id={CLIENT_ID}&scope=bot&permissions=532844898368
    - replace {CLIENT_ID} with your actual client_id, it's in `Settings` -> `General information` -> `application id`): 

@@ -101,6 +101,7 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
 				        update.Message
 			        );
 			        lastUpdateId = update.UpdateId;
+			        continue;
 		        }
 		        
 		        // if Message is not empty then it's a Message from some GroupID
@@ -111,6 +112,7 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
 			        update.Message
 		        );
 		        lastUpdateId = update.UpdateId;
+		        continue;
 	        }
         	
         	// if ChannelPost is not empty then this Message from ChannelID
@@ -122,7 +124,6 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
         		    update.ChannelPost
         		);
         		lastUpdateId = update.UpdateId;
-        		
         		continue;
         	}
         	
@@ -441,18 +442,18 @@ public class CPHInline_TelegramAPI : CPHInlineBase {
             return;
         }
 
-        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage);
+        CPH.LogInfo("DEBUG: " + widgetActionName + " :: " + getMessage());
     }
     
     private void INFO(Func<string> getMessage) {
-        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage);
+        CPH.LogInfo("INFO : " + widgetActionName + " :: " + getMessage());
     }
 
     private void WARN(Func<string> getMessage) {
-        CPH.LogWarn("WARN : " + widgetActionName + " :: " + getMessage);
+        CPH.LogWarn("WARN : " + widgetActionName + " :: " + getMessage());
     }
     
     private void ERROR(Func<string> getMessage) {
-        CPH.LogError("ERROR: " + widgetActionName + " :: " + getMessage);
+        CPH.LogError("ERROR: " + widgetActionName + " :: " + getMessage());
     }
 }
