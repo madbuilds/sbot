@@ -1,0 +1,129 @@
+name: publish RELEASE-LIBRARY
+description: deploys library release to maven repo and increase next snapshot version
+
+inputs:
+  settings_path:
+    required: false
+    description: 'maven settings.xml path'
+    default: .github/maven/settings.xml
+  github_repository:
+    required: false
+    description: github repository id
+    default: ${{ github.repository }}
+  github_actor:
+    required: false
+    description: actor to use
+    default: ${{ github.actor }}
+  github_token:
+    required: false
+    description: token to use
+  github_actions_username:
+    required: false
+    description: username to perform commit
+    default: github-actions[bot]
+
+runs:
+  using: composite
+  steps:
+    - id: github
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.github_token }}" ]; then
+          echo "token=${{ inputs.github_token }}" >> $GITHUB_OUTPUT
+        else
+          if [ -n "${{ env.GITHUB_TOKEN }}" ]; then
+            echo "token=${{ env.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "::error::ERROR: GITHUB_TOKEN is not set"
+            exit 1
+          fi
+        fi
+
+    - id: tag
+      name: VERIFY version TAG
+      shell: bash
+      run: |
+        POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        POM_VERSION=${POM_VERSION/-SNAPSHOT/}
+        TAG_VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG_VERSION#v}
+
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::ERROR: invalid version format '$VERSION'"
+          echo "::warning::expected format: MAJOR.MINOR.PATCH (v1.2.3 or 1.2.3)"
+          exit 1
+        fi
+        if [ "$POM_VERSION" != "$VERSION" ]; then
+          echo "::error::ERROR: release and pom versions mismatch"
+          echo "::warning::pom.xml version($POM_VERSION) != release version($VERSION)"
+          exit 1
+        fi
+
+    - name: SETUP Java21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'oracle'
+        cache: maven
+
+    - name: PRE_DOWNLOAD dependencies
+      shell: bash
+      run: |
+        echo ""
+        echo "========== PRE_DOWNLOAD dependencies =========="
+        echo ""
+        mvn dependency:go-offline --settings ${{ inputs.settings_path }}
+      env:
+        GITHUB_ACTOR: ${{ inputs.github_actor }}
+        GITHUB_TOKEN: ${{ steps.github.outputs.token }}
+        GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+
+    - name: UPDATE pom version
+      shell: bash
+      run: |
+        echo ""
+        echo "========== UPDATE pom version =========="
+        echo ""
+        mvn versions:set -DnewVersion=${{ steps.tag.outputs.version }} --settings ${{ inputs.settings_path }}
+      env:
+        GITHUB_ACTOR: ${{ inputs.github_actor }}
+        GITHUB_TOKEN: ${{ steps.github.outputs.token }}
+        GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+
+    - name: BUILD and PUBLISH
+      shell: bash
+      run: |
+        echo ""
+        echo "========== BUILD and PUBLISH =========="
+        echo ""
+        mvn --batch-mode deploy --settings ${{ inputs.settings_path }}
+      env:
+        GITHUB_ACTOR: ${{ inputs.github_actor }}
+        GITHUB_TOKEN: ${{ steps.github.outputs.token }}
+        GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+
+    - name: INCREMENT snapshot
+      shell: bash
+      run: |
+        echo ""
+        echo "========== INCREMENT snapshot =========="
+        echo ""
+        IFS='.' read -r majorVersion minorVersion patchVersion <<< "${{ steps.tag.outputs.version }}"
+        SNAPSHOT_VERSION="${majorVersion}.$((minorVersion + 1)).0-SNAPSHOT"
+
+        echo "CURRENT  version: ${{ steps.tag.outputs.version }}"
+        echo "SNAPSHOT version: $SNAPSHOT_VERSION"
+        mvn versions:set -DnewVersion=$SNAPSHOT_VERSION --settings ${{ inputs.settings_path }}
+      env:
+        GITHUB_ACTOR: ${{ inputs.github_actor }}
+        GITHUB_TOKEN: ${{ steps.github.outputs.token }}
+        GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+
+    - name: COMMIT and PUSH
+      shell: bash
+      run: |
+        git config --global user.name  '${{ inputs.github_actions_username }}'
+        git config --global user.email '${{ inputs.github_actions_username }}@users.noreply.github.com'
+        git commit -am "Bump version for next dev iteration"
+        git push origin HEAD:${{ github.event.repository.default_branch }}
