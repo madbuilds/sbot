@@ -6,8 +6,6 @@ using System;
 
 using System.IO;
 using System.Net;
-// using System.Net.Http;
-// using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
@@ -17,16 +15,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using Newtonsoft.Json;
-// using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
-// using Newtonsoft.Json.Serialization;
 
 /**
  * DOTA 2 GAME STATE INTEGRATION
  */
 // ReSharper disable once UnusedType.Global
 public class CPHInline_DOTA2GSI : CPHInlineBase {
-// public class CPHInline {
     private static bool isRunning = true;
     private static HttpListener listener;
     
