@@ -34,6 +34,10 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         port = getProperty("dota2.gsi.port", "3000"); //gsi = Game State Integration
         uri = getProperty("dota2.gsi.uri", "");
         
+        CPH.RegisterCustomTrigger("dota2_trigger", "dota2_trigger", [
+            "dota2", 
+            "trigger"
+        ]);
         _ = startDota2EventListener();
     }
 
@@ -42,6 +46,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
             return;
         }
         DEBUG(() => "GAME EVENT RECEIVED: " + gameEvent.provider.name);
+        CPH.TriggerCodeEvent("dota2_trigger", gameEvent.getProperties());
 
         var differences = gameEvent.GetDifferencesTo(lastEvent);
         if (differences.Count == 0) {
@@ -126,13 +131,11 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
     //----------------------------------------------------------------
     // DOTA 2 UTILITY METHODS
     //----------------------------------------------------------------
-    private readonly JsonSerializerSettings settings = new() {
-        MissingMemberHandling = MissingMemberHandling.Ignore
-    };
+    
     private T deserializeEntity<T>(string jsonData) where T: class {
         DEBUG(() => $"JSON DATA OBJECT {jsonData}");
         try {
-            var dataObject = JsonConvert.DeserializeObject<T>(jsonData, settings);
+            var dataObject = JsonConvert.DeserializeObject<T>(jsonData, GameExtension.deserializeSettings);
             if (dataObject == null) {
                 throw new Exception($"{typeof(T).Name.ToUpper()} IS NULL");
             }
@@ -217,9 +220,17 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
 //----------------------------------------------------------------
 // DOTA 2 EVENT EXTENSIONS CLASS
 //----------------------------------------------------------------
-public static class GameEventExtension {
+public static class GameExtension {
     private static readonly Dictionary<Type, PropertyInfo[]> propertyCache = new();
 
+    public static readonly JsonSerializerSettings deserializeSettings = new() {
+        MissingMemberHandling = MissingMemberHandling.Ignore
+    };
+    public static readonly JsonSerializerSettings serializeSettings = new() {
+        Formatting = Formatting.Indented,
+        NullValueHandling = NullValueHandling.Ignore
+    };
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Dictionary<string, (object NewValue, object OldValue)> GetDifferencesTo(
         this object newObject,
@@ -280,6 +291,32 @@ public static class GameEventExtension {
 
         return differences;
     }
+    
+    public static void AddIfNotEmpty(this Dictionary<string, object> dictionary, string key, object value) {
+        switch (value) {
+            case null:
+                return;
+            case Enum:
+                dictionary[key] = value.ToString();
+                return;
+            default:
+                dictionary[key] = value;
+                break;
+        }
+    }
+    
+    public static Dictionary<TKey, TValue> addAllFrom<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> source) {
+        if (source == null) {
+            return dictionary;
+        }
+        
+        foreach (var pair in source) { //KeyValuePair<TKey, TValue>
+            dictionary[pair.Key] = pair.Value;
+        }
+        source.Clear();
+        
+        return dictionary;
+    }
 }
 
 //----------------------------------------------------------------
@@ -292,8 +329,52 @@ public class GameEvent {
     [JsonProperty("hero")] public Hero hero { get; set; }
     [JsonProperty("abilities")] public Dictionary<string, Ability> abilities { get; set; }
     [JsonProperty("items")] public Items items { get; set; }
-    [JsonProperty("buildings")] public Buildings Buildings { get; set; }
-    [JsonProperty("draft")] public Draft Draft { get; set; }
+    [JsonProperty("buildings")] public Buildings buildings { get; set; }
+    [JsonProperty("draft")] public Draft draft { get; set; }
+
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties() {
+        var properties = new Dictionary<string, object>();
+        properties.addAllFrom(getProviderProperties());
+        properties.addAllFrom(getMapProperties());
+        // properties.addAllFrom(getPlayerProperties());
+        // properties.addAllFrom(getHeroProperties());
+        // properties.addAllFrom(getItemsProperties());
+        // properties.addAllFrom(getBuildingsProperties());
+        // properties.addAllFrom(getDraftProperties());
+        return properties;
+    }
+
+    public Dictionary<string, object> getProviderProperties() {
+        return provider?.getProperties("game") ?? new Dictionary<string, object>();
+    }
+
+    public Dictionary<string, object> getMapProperties() {
+        return map?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+    
+    public Dictionary<string, object> getPlayerProperties() {
+        return player?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+
+    public Dictionary<string, object> getHeroProperties() {
+        return hero?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+
+    public Dictionary<string, object> getItemsProperties() {
+        return items?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+    
+    public Dictionary<string, object> getBuildingsProperties() {
+        return buildings?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+    
+    public Dictionary<string, object> getDraftProperties() {
+        return draft?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
 }
 
 public class Provider {
@@ -301,26 +382,65 @@ public class Provider {
     [JsonProperty("appid")] public int appId { get; set; }
     [JsonProperty("version")] public int appVersion { get; set; }
     [JsonProperty("timestamp")] public long timestamp { get; set; }
-}
+
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
     
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.provider", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
+            properties.AddIfNotEmpty($"{prefix}.provider.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
+}
+
 public class Map {
     [JsonProperty("name")] public string name { get; set; }
     [JsonProperty("matchid")] public string matchId { get; set; }
+    
     [JsonProperty("game_time")] public int gameTime { get; set; }
     [JsonProperty("clock_time")] public int clockTime { get; set; }
     [JsonProperty("daytime")] public bool isDayTime { get; set; }
     [JsonProperty("nightstalker_night")] public bool isNightStalkerNight { get; set; }
+    
     [JsonProperty("radiant_score")] public int radiantScore { get; set; }
-    [JsonProperty("dire_score")] public string direScore { get; set; }
+    [JsonProperty("dire_score")] public int direScore { get; set; }
+    
     [JsonProperty("game_state")] public GameState gameState { get; set; }
+    
     [JsonProperty("paused")] public bool isPaused { get; set; }
+    
     [JsonProperty("win_team")] public Team winningTeam { get; set; }
+    
     [JsonProperty("customgamename")] public string customGameName { get; set; }
     [JsonProperty("ward_purchase_cooldown")] public int wardPurchaseCooldown { get; set; }
     [JsonProperty("radiant_ward_purchase_cooldown")] public int radiantWardPurchaseCooldown { get; set; }
     [JsonProperty("dire_ward_purchase_cooldown")] public int direWardPurchaseCooldown { get; set; }
+    
     [JsonProperty("roshan_state")] public int roshanState { get; set; }
     [JsonProperty("roshan_state_end_time")] public int roshanStateEndTime { get; set; }
+
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.map", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
+            properties.AddIfNotEmpty($"{prefix}.map.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Player {
@@ -363,6 +483,19 @@ public class Player {
     [JsonProperty("item_gold_spent")] public int itemGoldSpent { get; set; }
     [JsonProperty("gold_lost_to_death")] public int goldLostToDeath { get; set; }
     [JsonProperty("gold_spent_on_buybacks")] public int goldSpentOnBuybacks { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.player.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Hero {
@@ -412,6 +545,19 @@ public class Hero {
         level15 = new TalentTreeChoice { hasLeft = talent4, hasRight = talent3 },
         level10 = new TalentTreeChoice { hasLeft = talent2, hasRight = talent1 }
     };
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.hero.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Ability {
@@ -425,6 +571,19 @@ public class Ability {
     [JsonProperty("charges")] public int charges { get; set; }
     [JsonProperty("max_charges")] public int maxCharges { get; set; }
     [JsonProperty("charge_cooldown")] public int chargeCooldown { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.ability.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Items {
@@ -455,6 +614,22 @@ public class Items {
     [JsonProperty("preserved_neutral8")] public Item preservedNeutral8 { get; set; }
     [JsonProperty("preserved_neutral9")] public Item preservedNeutral9 { get; set; }
     [JsonProperty("preserved_neutral10")] public Item preservedNeutral10 { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.items.{field.Name}", field.GetValue(this));
+            
+            if (field.GetValue(this) is not Item item) continue;
+            properties.addAllFrom(item.getProperties($"{prefix}.items.{field.Name}"));
+        }
+        
+        return properties;
+    }
 }
 
 public class Item {
@@ -470,16 +645,61 @@ public class Item {
     [JsonProperty("max_charges")] public int maxCharges { get; set; }
     [JsonProperty("charge_cooldown")] public int chargeCooldown { get; set; }
     [JsonProperty("charges")] public int charges { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.item.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Buildings {
     [JsonProperty("radiant")] public Dictionary<string, Tower> radiant { get; set; }
     [JsonProperty("dire")] public Dictionary<string, Tower> dire { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.buildings.{field.Name}", field.GetValue(this));
+            
+            if (field.GetValue(this) is not Dictionary<string, Tower> dictionary) continue;
+            properties.Add($"{prefix}.buildings.{field.Name}.count", dictionary.Count.ToString());
+            foreach (var tower in dictionary) {
+                properties.addAllFrom(tower.Value.getProperties($"{prefix}.buildings.{field.Name}.{tower.Key}"));
+            }
+        }
+        
+        return properties;
+    }
 }
 
 public class Tower {
     [JsonProperty("health")] public int health { get; set; }
     [JsonProperty("max_health")] public int maxHealth { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.tower.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class Draft {
@@ -490,17 +710,65 @@ public class Draft {
     [JsonProperty("dire_bonus_time")] public int direBonusTime { get; set; }
     [JsonProperty("team2")] public TeamDraft radiantDraft { get; set; }
     [JsonProperty("team3")] public TeamDraft direDraft { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.draft.{field.Name}", field.GetValue(this));
+            
+            if (field.GetValue(this) is not TeamDraft teamDraft) continue;
+            properties.addAllFrom(teamDraft.getProperties($"{prefix}.draft.{field.Name}"));
+        }
+        
+        return properties;
+    }
 }
 
 public class TeamDraft {
     [JsonProperty("home_team")] public bool isHomeTeam { get; set; }
     [JsonProperty("picks")] public List<DraftHero> picks { get; set; }
     [JsonProperty("bans")] public List<DraftHero> bans { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.draft.{field.Name}", field.GetValue(this));
+            
+            if (field.GetValue(this) is not List<DraftHero> list) continue;
+            properties.Add($"{prefix}.team.{field.Name}.count", list.Count.ToString());
+            foreach (var draftHero in list) {
+                properties.addAllFrom(draftHero.getProperties($"{prefix}.team.{field.Name}"));
+            }
+        }
+        
+        return properties;
+    }
 }
 
 public class DraftHero {
     [JsonProperty("id")] public int id { get; set; }
     [JsonProperty("name")] public string name { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.hero.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 public class TalentTree {
@@ -508,11 +776,38 @@ public class TalentTree {
     public TalentTreeChoice level20 { get; set; }
     public TalentTreeChoice level15 { get; set; }
     public TalentTreeChoice level10 { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.talent.{field.Name}", field.GetValue(this));
+            properties.addAllFrom((field.GetValue(this) as TalentTreeChoice)?.getProperties($"{prefix}.talent.{field.Name}"));
+        }
+        
+        return properties;
+    }
 }
 
 public class TalentTreeChoice {
     public bool hasLeft { get; set; }
     public bool hasRight { get; set; }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+    
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object>();
+        foreach (var field in GetType().GetFields()) {
+            properties.AddIfNotEmpty($"{prefix}.choice.{field.Name}", field.GetValue(this));
+        }
+        
+        return properties;
+    }
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
