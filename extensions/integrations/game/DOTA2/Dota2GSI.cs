@@ -31,14 +31,9 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         port = getProperty("dota2.gsi.port", "3000"); //gsi = Game State Integration
         uri = getProperty("dota2.gsi.uri", "");
         
-        CPH.RegisterCustomTrigger("dota2_trigger", "dota2_trigger", [
-            "dota2", 
-            "trigger"
-        ]);
-        CPH.RegisterCustomTrigger("dota2_time_trigger", "dota2_time_trigger", [
-            "dota2", 
-            "trigger"
-        ]);
+        foreach (var eventDetails in GameEvent.getAllEvents()) {
+            CPH.RegisterCustomTrigger(eventDetails.name, eventDetails.id, eventDetails.path);
+        }
         _ = startDota2EventListener();
     }
 
@@ -50,7 +45,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         
         gameEvent.map.handleTimeChanges(changes => {
             INFO(() => "TIME CHANGES:" + JsonConvert.SerializeObject(changes, GameExtension.serializeSettings));
-            CPH.TriggerCodeEvent("dota2_time_trigger", gameEvent.getMapProperties());
+            CPH.TriggerCodeEvent(Map.DOTA_MAP_TIME_CHANGED_EVENT.id, gameEvent.getMapProperties());
         });
     }
     
@@ -250,6 +245,13 @@ public class GameEvent {
         map?.initializePrevious(previousEvent?.map);
         return this;
     }
+
+    public static EventDetails[] getAllEvents()
+    {
+        return [
+            ..Map.MAP_EVENT_LIST
+        ];
+    }
     
     public override string ToString() {
         return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
@@ -335,6 +337,10 @@ public abstract class DotaEntity {
         }
         return obj;
     }
+    
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
 }
 
 public class Provider {
@@ -361,6 +367,41 @@ public class Provider {
 }
 
 public class Map : DotaEntity {
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_MATCH_CHANGED_EVENT      = new("MATCH CHANGED",     "dota_map_match_changed",              ["dota", "map", "match"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_TIME_CHANGED_EVENT       = new("TIME CHANGED",      "dota_map_time_changed",               ["dota", "map", "time"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_DAY_EVENT                = new("DAY STARTED",       "dota_map_day_changed",                ["dota", "map", "time"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_NIGHT_EVENT              = new("NIGHT STARTED",     "dota_map_night_changed",              ["dota", "map", "time"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_NIGHTSTALKER_NIGHT_EVENT = new("NIGHTSTALKER NIGHT","dota_map_nightstalker_night_changed", ["dota", "map", "time"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_RADIANT_SCORE_EVENT      = new("RADIANT SCORE CHANGE", "dota_map_radiant_score_changed", ["dota", "map", "score"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_DIRE_SCORE_EVENT         = new("DIRE SCORE CHANGED",   "dota_map_dire_score_changed",    ["dota", "map", "score"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_GAME_STATE_EVENT         = new("GAME STATE CHANGED",   "dota_map_game_state_changed", ["dota", "map", "state"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_GAME_PAUSED_EVENT        = new("GAME PAUSED", "dota_map_game_pause_changed",          ["dota", "map", "state"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_GAME_UNPAUSE_EVENT       = new("GAME UNPAUSED", "dota_map_game_unpause_changed",      ["dota", "map", "state"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_GAME_WIN_TEAM_EVENT      = new("GAME WIN TEAM", "dota_map_game_win_team_changed", ["dota", "map", "winning"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_CUSTOM_GAME_NAME_EVENT   = new("CUSTOM GAME NAME", "dota_map_custom_game_name_changed", ["dota", "map", "custom"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_WARD_COOLDOWN_EVENT         = new("WARD COOLDOWN",         "dota_map_ward_cooldown_changed",         ["dota", "map", "ward"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_WARD_COOLDOWN_RADIANT_EVENT = new("WARD COOLDOWN RADIANT", "dota_map_ward_cooldown_radiant_changed", ["dota", "map", "ward"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_WARD_COOLDOWN_DIRE_EVENT    = new("WARD COOLDOWN DIRE", "dota_map_ward_cooldown_dire_changed", ["dota", "map", "ward"]);
+    [JsonIgnore] public static readonly EventDetails DOTA_MAP_ROSHAN_STATE_CHANGED     = new("ROSHAN STATE CHANGE", "dota_map_roshan_state_changed", ["dota", "map", "roshan"]);
+    [JsonIgnore] public static readonly List<EventDetails> MAP_EVENT_LIST = [
+        DOTA_MAP_MATCH_CHANGED_EVENT,
+        DOTA_MAP_TIME_CHANGED_EVENT,
+        DOTA_MAP_DAY_EVENT,
+        DOTA_MAP_NIGHT_EVENT,
+        DOTA_MAP_NIGHTSTALKER_NIGHT_EVENT,
+        DOTA_MAP_RADIANT_SCORE_EVENT,
+        DOTA_MAP_DIRE_SCORE_EVENT,
+        DOTA_MAP_GAME_STATE_EVENT,
+        DOTA_MAP_GAME_PAUSED_EVENT,
+        DOTA_MAP_GAME_UNPAUSE_EVENT,
+        DOTA_MAP_GAME_WIN_TEAM_EVENT,
+        DOTA_MAP_CUSTOM_GAME_NAME_EVENT,
+        DOTA_MAP_WARD_COOLDOWN_EVENT,
+        DOTA_MAP_WARD_COOLDOWN_RADIANT_EVENT,
+        DOTA_MAP_WARD_COOLDOWN_DIRE_EVENT,
+        DOTA_MAP_ROSHAN_STATE_CHANGED
+    ];
+    
     [JsonProperty("name")] public string name { get; set; }
     [JsonProperty("matchid")] public string matchId { get; set; }
     
@@ -383,18 +424,14 @@ public class Map : DotaEntity {
     [JsonProperty("radiant_ward_purchase_cooldown")] public int radiantWardPurchaseCooldown { get; set; }
     [JsonProperty("dire_ward_purchase_cooldown")] public int direWardPurchaseCooldown { get; set; }
     
-    [JsonProperty("roshan_state")] public int roshanState { get; set; }
+    [JsonProperty("roshan_state")] public RoshanState roshanState { get; set; }
     [JsonProperty("roshan_state_end_time")] public int roshanStateEndTime { get; set; }
-
+    
     public void handleTimeChanges(Action<Dictionary<string, (object newValue, object oldValue)>> onTimeChanged) {
         var changes = getChanges("gameTime", "clockTime");
         if (changes.Any()) {
             onTimeChanged(changes);
         }
-    }
-    
-    public override string ToString() {
-        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
@@ -862,4 +899,10 @@ public enum RoshanState {
     RESPAWN_BASE,
     /// waiting variable respawn rate (additional time after base)
     RESPAWN_VARIABLE,
+}
+
+public class EventDetails(string name, string id, string[] path) {
+    public string name { get; } = name;
+    public string id { get; } = id;
+    public string[] path { get; } = path;
 }
