@@ -8,11 +8,8 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -38,45 +35,23 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
             "dota2", 
             "trigger"
         ]);
+        CPH.RegisterCustomTrigger("dota2_time_trigger", "dota2_time_trigger", [
+            "dota2", 
+            "trigger"
+        ]);
         _ = startDota2EventListener();
     }
 
-    private void handleGameEvent(GameEvent gameEvent, GameEvent lastEvent) {
-        if (gameEvent == null) {
-            return;
-        }
+    private void handleGameEvent(GameEvent gameEvent) {
+        if (gameEvent == null) { return; }
         DEBUG(() => "GAME EVENT RECEIVED: " + gameEvent.provider.name);
-        CPH.TriggerCodeEvent("dota2_trigger", gameEvent.getProperties());
-
-        var differences = gameEvent.GetDifferencesTo(lastEvent);
-        if (differences.Count == 0) {
-            INFO((() => "NO DIFFERENCES"));
-            return;
-        }
-
-        foreach (var diff in differences) {
-            INFO(() => $"{diff.Key} : {diff.Value.OldValue} -> {diff.Value.NewValue}");
-        }
         
-        if (gameEvent.player?.kills > lastEvent?.player?.kills) {
-            INFO(() => $"player kills: {gameEvent.player.kills}");
-        }
-
-        differences.TryGetValue("hero.level", out var pair);
-        if (pair.NewValue != null) {
-            //sendMessage($"[DOTA2 STAT] - ПУДЖ ТОЛЬКО ЧТО СТАЛ {pair.NewValue}го УРОВНЯ");
-        }
-
-        differences.TryGetValue("player.kills", out var killsCount);
-        if (killsCount.NewValue != null) {
-            //var keys = gameEvent.player!.killList.Keys.Aggregate("", (current, key) => current + ", " + key);
-
-            //sendMessage($"[DOTA2 STAT] - ПУДЖ УЖЕ ПОБЕДИЛ - {killsCount.NewValue}х ДРУГИХ ПУДЖЕЙ (это на {(int) killsCount.NewValue - (int) killsCount.OldValue} больше чем было): {keys}");
-        }
-
-        INFO(() => "");
-        INFO(() => "");
-        INFO(() => "");
+        CPH.TriggerCodeEvent("dota2_trigger", gameEvent.getProperties());
+        
+        gameEvent.map.handleTimeChanges(changes => {
+            INFO(() => "TIME CHANGES:" + JsonConvert.SerializeObject(changes, GameExtension.serializeSettings));
+            CPH.TriggerCodeEvent("dota2_time_trigger", gameEvent.getMapProperties());
+        });
     }
     
     private static readonly byte[] responseMessage = Encoding.UTF8.GetBytes("{\"message\": \"ok\"}");
@@ -87,8 +62,6 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         INFO(() => $"listener started on: http://{host}:{port}/{uri}");
         
         try {
-            var gameEvent = new GameEvent();
-            var lastEvent = new GameEvent();
             while (isRunning) {
                 HttpListenerContext context = await listener.GetContextAsync();
                 HttpListenerRequest request = context.Request;
@@ -99,9 +72,10 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
                     try {
                         using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
                         var jsonData = await reader.ReadToEndAsync();
-                        gameEvent = deserializeEntity<GameEvent>(jsonData);
-                        handleGameEvent(gameEvent, lastEvent);
-                        lastEvent = gameEvent;
+                        handleGameEvent(
+                            deserializeEntity<GameEvent>(jsonData)
+                                .initializePrevious()
+                        );
                     } catch (Exception e) {
                         INFO(() => $"cannot handle json event: {e.Message}, " +
                                       $"reason: {e.InnerException?.Message}, " +
@@ -221,8 +195,6 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
 // DOTA 2 EVENT EXTENSIONS CLASS
 //----------------------------------------------------------------
 public static class GameExtension {
-    private static readonly Dictionary<Type, PropertyInfo[]> propertyCache = new();
-
     public static readonly JsonSerializerSettings deserializeSettings = new() {
         MissingMemberHandling = MissingMemberHandling.Ignore
     };
@@ -231,66 +203,6 @@ public static class GameExtension {
         NullValueHandling = NullValueHandling.Ignore
     };
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Dictionary<string, (object NewValue, object OldValue)> GetDifferencesTo(
-        this object newObject,
-        object oldObject,
-        string parentPath = ""
-    ) {
-        if (newObject == oldObject) return new Dictionary<string, (object, object)>();
-        if (newObject == null || oldObject == null)
-            return new Dictionary<string, (object, object)> { [parentPath] = (newObject, oldObject) };
-
-        var differences = new Dictionary<string, (object, object)>();
-        var type = newObject.GetType();
-
-        if (!propertyCache.TryGetValue(type, out PropertyInfo[] properties)) {
-            properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            propertyCache[type] = properties;
-        }
-
-        foreach (var prop in properties) {
-            var newValue = prop.GetValue(newObject);
-            var oldValue = prop.GetValue(oldObject);
-            var fullPath = string.IsNullOrEmpty(parentPath) ? prop.Name : $"{parentPath}.{prop.Name}";
-            
-            if (newValue == oldValue) continue;
-            if (newValue == null || oldValue == null) {
-                differences[fullPath] = (newValue, oldValue);
-                continue;
-            }
-            
-            var propType = prop.PropertyType;
-            if (propType.IsPrimitive || propType == typeof(string) || propType == typeof(decimal))
-            {
-                if (!newValue.Equals(oldValue)) differences[fullPath] = (newValue, oldValue);
-                continue;
-            }
-
-            if (typeof(IEnumerable).IsAssignableFrom(propType) && propType != typeof(string)) {
-                var enum1 = ((IEnumerable)newValue).Cast<object>().ToArray();
-                var enum2 = ((IEnumerable)oldValue).Cast<object>().ToArray();
-
-                if (enum1.Length != enum2.Length) {
-                    differences[fullPath] = ($"Size: {enum1.Length}", $"Size: {enum2.Length}");
-                }
-                var minCount = Math.Min(enum1.Length, enum2.Length);
-                
-                for (var i = 0; i < minCount; i++) {
-                    foreach (var diff in enum1[i].GetDifferencesTo(enum2[i], $"{fullPath}[{i}]")) {
-                        differences[diff.Key] = diff.Value;
-                    }
-                }
-                continue;
-            }
-            
-            foreach (var diff in newValue.GetDifferencesTo(oldValue, fullPath)) {
-                differences[diff.Key] = diff.Value;
-            }
-        }
-
-        return differences;
-    }
     
     public static void AddIfNotEmpty(this Dictionary<string, object> dictionary, string key, object value) {
         switch (value) {
@@ -305,17 +217,18 @@ public static class GameExtension {
         }
     }
     
-    public static Dictionary<TKey, TValue> addAllFrom<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> source) {
+    public static void addAllFrom<TKey, TValue>(
+        this Dictionary<TKey, TValue> dictionary,
+        Dictionary<TKey, TValue> source
+    ) {
         if (source == null) {
-            return dictionary;
+            return;
         }
         
         foreach (var pair in source) { //KeyValuePair<TKey, TValue>
             dictionary[pair.Key] = pair.Value;
         }
         source.Clear();
-        
-        return dictionary;
     }
 }
 
@@ -331,8 +244,13 @@ public class GameEvent {
     [JsonProperty("items")] public Items items { get; set; }
     [JsonProperty("buildings")] public Buildings buildings { get; set; }
     [JsonProperty("draft")] public Draft draft { get; set; }
-    [JsonProperty("previously")] public GameEvent gameEvent { get; set; }
+    [JsonProperty("previously")] public GameEvent previousEvent { get; set; }
 
+    public GameEvent initializePrevious() {
+        map?.initializePrevious(previousEvent?.map);
+        return this;
+    }
+    
     public override string ToString() {
         return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
     }
@@ -385,6 +303,50 @@ public class GameEvent {
     }
 }
 
+public abstract class DotaEntity {
+    [JsonIgnore] protected DotaEntity previously;
+
+    public void initializePrevious(DotaEntity previous) {
+        this.previously = previous;
+    }
+    
+    //TODO: compare old and new values if similar
+    public bool hasChanges(params string[] propertyPaths) {
+        if (previously == null) { return false; }
+
+        return propertyPaths.Any(path => {
+            var value = getPropertyByPath(previously, path);
+            return value != null;
+        });
+    }
+    
+    public Dictionary<string, (object newValue, object oldValue)> getChanges(params string[] propertyPaths) {
+        var changes = new Dictionary<string, (object NewValue, object OldValue)>();
+        if (previously == null) return changes;
+
+        foreach (var path in propertyPaths) {
+            var oldValue = getPropertyByPath(previously, path);
+            if (oldValue != null) {
+                var newValue = getPropertyByPath(this, path);
+                changes[path] = (newValue, oldValue);
+            }
+        }
+
+        return changes;
+    }
+    
+    private object getPropertyByPath(object obj, string path) {
+        foreach (var prop in path.Split('.')) {
+            if (obj == null) return null;
+            var type = obj.GetType();
+            var property = type.GetProperty(prop);
+            if (property == null) return null;
+            obj = property.GetValue(obj);
+        }
+        return obj;
+    }
+}
+
 public class Provider {
     [JsonProperty("name")] public string name { get; set; }
     [JsonProperty("appid")] public int appId { get; set; }
@@ -408,7 +370,7 @@ public class Provider {
     }
 }
 
-public class Map {
+public class Map : DotaEntity {
     [JsonProperty("name")] public string name { get; set; }
     [JsonProperty("matchid")] public string matchId { get; set; }
     
@@ -434,6 +396,14 @@ public class Map {
     [JsonProperty("roshan_state")] public int roshanState { get; set; }
     [JsonProperty("roshan_state_end_time")] public int roshanStateEndTime { get; set; }
 
+    public void handleTimeChanges(Action<Dictionary<string, (object newValue, object oldValue)>> onTimeChanged) {
+        // var changes = getChanges("map.gameTime", "map.clockTime");
+        var changes = getChanges("gameTime", "clockTime");
+        if (changes.Any()) {
+            onTimeChanged(changes);
+        }
+    }
+    
     public override string ToString() {
         return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
     }
