@@ -90,7 +90,9 @@
         <Compile Include="utils\device\plug-trigger\DeviceEvents.cs" />
     </ItemGroup>
     <ItemGroup>
+      <Content Include="integrations\game\DOTA2\docs\entity_new.json" />
       <Content Include="integrations\game\DOTA2\docs\gamestate_integration\gamestate_integration_sbot.cfg" />
+      <Content Include="integrations\game\DOTA2\docs\entity_old.json" />
       <Content Include="integrations\game\DOTA2\README.md" />
       <Content Include="integrations\home\hue\docs\demo.gif" />
       <Content Include="integrations\home\hue\lib\Q42.HueApi.dll" />

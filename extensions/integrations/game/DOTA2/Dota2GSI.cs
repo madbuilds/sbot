@@ -331,13 +331,16 @@ public class GameEvent {
     [JsonProperty("items")] public Items items { get; set; }
     [JsonProperty("buildings")] public Buildings buildings { get; set; }
     [JsonProperty("draft")] public Draft draft { get; set; }
+    [JsonProperty("previously")] public GameEvent gameEvent { get; set; }
 
     public override string ToString() {
         return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
     }
     
     public Dictionary<string, object> getProperties() {
-        var properties = new Dictionary<string, object>();
+        var properties = new Dictionary<string, object> {
+            { "dota.event", ToString() }
+        };
         properties.addAllFrom(getProviderProperties());
         properties.addAllFrom(getMapProperties());
         properties.addAllFrom(getPlayerProperties());
