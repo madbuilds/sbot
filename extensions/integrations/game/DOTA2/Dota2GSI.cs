@@ -304,30 +304,20 @@ public class GameEvent {
 }
 
 public abstract class DotaEntity {
-    [JsonIgnore] protected DotaEntity previously;
+    [JsonIgnore] private DotaEntity previously;
 
     public void initializePrevious(DotaEntity previous) {
         this.previously = previous;
     }
     
-    //TODO: compare old and new values if similar
-    public bool hasChanges(params string[] propertyPaths) {
-        if (previously == null) { return false; }
-
-        return propertyPaths.Any(path => {
-            var value = getPropertyByPath(previously, path);
-            return value != null;
-        });
-    }
-    
-    public Dictionary<string, (object newValue, object oldValue)> getChanges(params string[] propertyPaths) {
+    protected Dictionary<string, (object newValue, object oldValue)> getChanges(params string[] propertyPaths) {
         var changes = new Dictionary<string, (object NewValue, object OldValue)>();
         if (previously == null) return changes;
 
         foreach (var path in propertyPaths) {
             var oldValue = getPropertyByPath(previously, path);
-            if (oldValue != null) {
-                var newValue = getPropertyByPath(this, path);
+            var newValue = getPropertyByPath(this, path);
+            if (oldValue != newValue) {
                 changes[path] = (newValue, oldValue);
             }
         }
@@ -335,7 +325,7 @@ public abstract class DotaEntity {
         return changes;
     }
     
-    private object getPropertyByPath(object obj, string path) {
+    private static object getPropertyByPath(object obj, string path) {
         foreach (var prop in path.Split('.')) {
             if (obj == null) return null;
             var type = obj.GetType();
@@ -397,7 +387,6 @@ public class Map : DotaEntity {
     [JsonProperty("roshan_state_end_time")] public int roshanStateEndTime { get; set; }
 
     public void handleTimeChanges(Action<Dictionary<string, (object newValue, object oldValue)>> onTimeChanged) {
-        // var changes = getChanges("map.gameTime", "map.clockTime");
         var changes = getChanges("gameTime", "clockTime");
         if (changes.Any()) {
             onTimeChanged(changes);
