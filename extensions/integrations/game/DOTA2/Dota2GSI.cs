@@ -296,11 +296,11 @@ public static class GameExtension {
         switch (value) {
             case null:
                 return;
-            case Enum:
-                dictionary[key] = value.ToString();
+            case var _ when value.GetType().IsPrimitive:
+                dictionary[key] = value;
                 return;
             default:
-                dictionary[key] = value;
+                dictionary[key] = value.ToString();
                 break;
         }
     }
@@ -327,7 +327,7 @@ public class GameEvent {
     [JsonProperty("map")] public Map map { get; set; }
     [JsonProperty("player")] public Player player { get; set; }
     [JsonProperty("hero")] public Hero hero { get; set; }
-    [JsonProperty("abilities")] public Dictionary<string, Ability> abilities { get; set; }
+    [JsonProperty("abilities")] public Abilities abilities { get; set; }
     [JsonProperty("items")] public Items items { get; set; }
     [JsonProperty("buildings")] public Buildings buildings { get; set; }
     [JsonProperty("draft")] public Draft draft { get; set; }
@@ -340,11 +340,12 @@ public class GameEvent {
         var properties = new Dictionary<string, object>();
         properties.addAllFrom(getProviderProperties());
         properties.addAllFrom(getMapProperties());
-        // properties.addAllFrom(getPlayerProperties());
-        // properties.addAllFrom(getHeroProperties());
-        // properties.addAllFrom(getItemsProperties());
-        // properties.addAllFrom(getBuildingsProperties());
-        // properties.addAllFrom(getDraftProperties());
+        properties.addAllFrom(getPlayerProperties());
+        properties.addAllFrom(getHeroProperties());
+        properties.addAllFrom(getAbilitiesProperties());
+        properties.addAllFrom(getItemsProperties());
+        properties.addAllFrom(getBuildingsProperties());
+        properties.addAllFrom(getDraftProperties());
         return properties;
     }
 
@@ -364,6 +365,10 @@ public class GameEvent {
         return hero?.getProperties("dota") ?? new Dictionary<string, object>();
     }
 
+    public Dictionary<string, object> getAbilitiesProperties() {
+        return abilities?.getProperties("dota") ?? new Dictionary<string, object>();
+    }
+    
     public Dictionary<string, object> getItemsProperties() {
         return items?.getProperties("dota") ?? new Dictionary<string, object>();
     }
@@ -462,10 +467,10 @@ public class Player {
     [JsonProperty("gold")] public int gold { get; set; }
     [JsonProperty("gold_reliable")] public int goldReliable { get; set; }
     [JsonProperty("gold_unreliable")] public int goldUnreliable { get; set; }
-    [JsonProperty("gold_from_hero_kills")] public int goldKills { get; set; }
-    [JsonProperty("gold_from_creep_kills")] public int goldCreeps { get; set; }
-    [JsonProperty("gold_from_income")] public int goldIncome { get; set; }
-    [JsonProperty("gold_from_shared")] public int goldShared { get; set; }
+    [JsonProperty("gold_from_hero_kills")] public int goldFromKills { get; set; }
+    [JsonProperty("gold_from_creep_kills")] public int goldFromCreeps { get; set; }
+    [JsonProperty("gold_from_income")] public int goldFromIncome { get; set; }
+    [JsonProperty("gold_from_shared")] public int goldFromShared { get; set; }
     [JsonProperty("gpm")] public int gpm { get; set; }
     [JsonProperty("xpm")] public int xpm { get; set; }
     [JsonProperty("onstage_seat")] public int onStageSeat { get; set; }
@@ -489,8 +494,15 @@ public class Player {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.player", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
+            if (field.Name == nameof(killList)) {
+                properties.AddIfNotEmpty($"{prefix}.player.{nameof(killList)}", JsonConvert.SerializeObject(field.GetValue(this), GameExtension.serializeSettings));
+                continue;
+            }
             properties.AddIfNotEmpty($"{prefix}.player.{field.Name}", field.GetValue(this));
         }
         
@@ -551,9 +563,33 @@ public class Hero {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.hero", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
             properties.AddIfNotEmpty($"{prefix}.hero.{field.Name}", field.GetValue(this));
+            if (field.Name == nameof(talentTree)) {
+                properties.addAllFrom(talentTree.getProperties($"{prefix}.hero.{field.Name}"));
+            }
+        }
+        
+        return properties;
+    }
+}
+
+public class Abilities : Dictionary<string, Ability> {
+    public override string ToString() {
+        return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
+    }
+
+    public Dictionary<string, object> getProperties(string prefix) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.abilities", ToString() }
+        };
+
+        foreach (var ability in this) {
+            properties.addAllFrom(ability.Value.getProperties($"{prefix}.abilities.{ability.Key}"));
         }
         
         return properties;
@@ -577,8 +613,11 @@ public class Ability {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.ability", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
             properties.AddIfNotEmpty($"{prefix}.ability.{field.Name}", field.GetValue(this));
         }
         
@@ -586,46 +625,18 @@ public class Ability {
     }
 }
 
-public class Items {
-    [JsonProperty("slot0")] public Item slot0 { get; set; }
-    [JsonProperty("slot1")] public Item slot1 { get; set; }
-    [JsonProperty("slot2")] public Item slot2 { get; set; }
-    [JsonProperty("slot3")] public Item slot3 { get; set; }
-    [JsonProperty("slot4")] public Item slot4 { get; set; }
-    [JsonProperty("slot5")] public Item slot5 { get; set; }
-    [JsonProperty("slot6")] public Item slot6 { get; set; }
-    [JsonProperty("slot7")] public Item slot7 { get; set; }
-    [JsonProperty("slot8")] public Item slot8 { get; set; }
-
-    [JsonProperty("stash0")] public Item stash0 { get; set; }
-    [JsonProperty("stash1")] public Item stash1 { get; set; }
-    [JsonProperty("stash2")] public Item stash2 { get; set; }
-    [JsonProperty("stash3")] public Item stash3 { get; set; }
-    [JsonProperty("stash4")] public Item stash4 { get; set; }
-    [JsonProperty("stash5")] public Item stash5 { get; set; }
-
-    [JsonProperty("teleport0")] public Item teleport0 { get; set; }
-
-    [JsonProperty("neutral0")] public Item neutral0 { get; set; }
-    [JsonProperty("neutral1")] public Item neutral1 { get; set; }
-
-    [JsonProperty("preserved_neutral6")] public Item preservedNeutral6 { get; set; }
-    [JsonProperty("preserved_neutral7")] public Item preservedNeutral7 { get; set; }
-    [JsonProperty("preserved_neutral8")] public Item preservedNeutral8 { get; set; }
-    [JsonProperty("preserved_neutral9")] public Item preservedNeutral9 { get; set; }
-    [JsonProperty("preserved_neutral10")] public Item preservedNeutral10 { get; set; }
-    
+public class Items : Dictionary<string, Item> {
     public override string ToString() {
         return JsonConvert.SerializeObject(this, GameExtension.serializeSettings);
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
-            properties.AddIfNotEmpty($"{prefix}.items.{field.Name}", field.GetValue(this));
-            
-            if (field.GetValue(this) is not Item item) continue;
-            properties.addAllFrom(item.getProperties($"{prefix}.items.{field.Name}"));
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.items", ToString() }
+        };
+
+        foreach (var item in this) {
+            properties.addAllFrom(item.Value.getProperties($"{prefix}.items.{item.Key}"));
         }
         
         return properties;
@@ -636,7 +647,7 @@ public class Item {
     [JsonProperty("name")] public string name { get; set; }
     [JsonProperty("purchaser")] public int purchaser { get; set; }
     [JsonProperty("item_level")] public int level { get; set; }
-    [JsonProperty("contains_rune")] public BottledRune BottledRune { get; set; }
+    [JsonProperty("contains_rune")] public BottledRune bottledRune { get; set; }
     [JsonProperty("can_cast")] public bool canCast { get; set; }
     [JsonProperty("cooldown")] public int cooldown { get; set; }
     [JsonProperty("passive")] public bool isPassive { get; set; }
@@ -651,8 +662,11 @@ public class Item {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.item", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
             properties.AddIfNotEmpty($"{prefix}.item.{field.Name}", field.GetValue(this));
         }
         
@@ -669,15 +683,24 @@ public class Buildings {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
-            properties.AddIfNotEmpty($"{prefix}.buildings.{field.Name}", field.GetValue(this));
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.buildings", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
             
-            if (field.GetValue(this) is not Dictionary<string, Tower> dictionary) continue;
-            properties.Add($"{prefix}.buildings.{field.Name}.count", dictionary.Count.ToString());
-            foreach (var tower in dictionary) {
-                properties.addAllFrom(tower.Value.getProperties($"{prefix}.buildings.{field.Name}.{tower.Key}"));
+            if (field.GetValue(this) is Dictionary<string, Tower> buildings) {
+                properties.AddIfNotEmpty($"{prefix}.buildings.{field.Name}", JsonConvert.SerializeObject(buildings, GameExtension.serializeSettings));
+                properties.AddIfNotEmpty($"{prefix}.buildings.{field.Name}.count", buildings.Count.ToString());
+
+                foreach (var tower in buildings) {
+                    properties.addAllFrom(tower.Value.getProperties($"{prefix}.buildings.{field.Name}.{tower.Key}"));
+                }
+
+                continue;
             }
+            
+            properties.AddIfNotEmpty($"{prefix}.buildings.{field.Name}", field.GetValue(this));
         }
         
         return properties;
@@ -693,8 +716,11 @@ public class Tower {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.tower", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
             properties.AddIfNotEmpty($"{prefix}.tower.{field.Name}", field.GetValue(this));
         }
         
@@ -716,12 +742,17 @@ public class Draft {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
-            properties.AddIfNotEmpty($"{prefix}.draft.{field.Name}", field.GetValue(this));
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.draft", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
+            if (field.GetValue(this) is TeamDraft teamDraft) {
+                properties.addAllFrom(teamDraft.getProperties($"{prefix}.draft.{field.Name}"));
+                continue;
+            }
             
-            if (field.GetValue(this) is not TeamDraft teamDraft) continue;
-            properties.addAllFrom(teamDraft.getProperties($"{prefix}.draft.{field.Name}"));
+            properties.AddIfNotEmpty($"{prefix}.draft.{field.Name}", field.GetValue(this));
         }
         
         return properties;
@@ -738,15 +769,23 @@ public class TeamDraft {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
-            properties.AddIfNotEmpty($"{prefix}.draft.{field.Name}", field.GetValue(this));
-            
-            if (field.GetValue(this) is not List<DraftHero> list) continue;
-            properties.Add($"{prefix}.team.{field.Name}.count", list.Count.ToString());
-            foreach (var draftHero in list) {
-                properties.addAllFrom(draftHero.getProperties($"{prefix}.team.{field.Name}"));
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.team", ToString() }
+        };
+        
+        foreach (var field in GetType().GetProperties()) {
+            if (field.GetValue(this) is List<DraftHero> list) {
+                properties.AddIfNotEmpty($"{prefix}.team.{field.Name}", JsonConvert.SerializeObject(list, GameExtension.serializeSettings));
+                properties.AddIfNotEmpty($"{prefix}.team.{field.Name}.count", list.Count.ToString());
+
+                foreach (var draftHero in list) {
+                    properties.addAllFrom(draftHero.getProperties($"{prefix}.team.{field.Name}"));
+                }
+                
+                continue;
             }
+            
+            properties.AddIfNotEmpty($"{prefix}.team.{field.Name}", field.GetValue(this));
         }
         
         return properties;
@@ -762,7 +801,10 @@ public class DraftHero {
     }
     
     public Dictionary<string, object> getProperties(string prefix) {
-        var properties = new Dictionary<string, object>();
+        var properties = new Dictionary<string, object> {
+            { $"{prefix}.hero", ToString() }
+        };
+        
         foreach (var field in GetType().GetFields()) {
             properties.AddIfNotEmpty($"{prefix}.hero.{field.Name}", field.GetValue(this));
         }
@@ -783,7 +825,7 @@ public class TalentTree {
     
     public Dictionary<string, object> getProperties(string prefix) {
         var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
+        foreach (var field in GetType().GetProperties()) {
             properties.AddIfNotEmpty($"{prefix}.talent.{field.Name}", field.GetValue(this));
             properties.addAllFrom((field.GetValue(this) as TalentTreeChoice)?.getProperties($"{prefix}.talent.{field.Name}"));
         }
@@ -802,8 +844,8 @@ public class TalentTreeChoice {
     
     public Dictionary<string, object> getProperties(string prefix) {
         var properties = new Dictionary<string, object>();
-        foreach (var field in GetType().GetFields()) {
-            properties.AddIfNotEmpty($"{prefix}.choice.{field.Name}", field.GetValue(this));
+        foreach (var field in GetType().GetProperties()) {
+            properties.AddIfNotEmpty($"{prefix}.{field.Name}", field.GetValue(this));
         }
         
         return properties;
@@ -812,6 +854,8 @@ public class TalentTreeChoice {
 
 [JsonConverter(typeof(StringEnumConverter))]
 public enum BottledRune {
+    EMPTY,
+    
     DOUBLE_DAMAGE,
     ILLUSION,
     SHIELD,
@@ -821,9 +865,7 @@ public enum BottledRune {
 
     ARCANE,
     BOUNTY,
-    WATER,
-    
-    EMPTY
+    WATER
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
