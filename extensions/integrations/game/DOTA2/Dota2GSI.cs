@@ -2,6 +2,7 @@
 // ReSharper disable CheckNamespace
 #pragma warning disable CS0114
 
+//#nullable enable
 using System;
 
 using System.IO;
@@ -38,11 +39,9 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
     }
 
     private void handleGameEvent(GameEvent gameEvent) {
-        if (gameEvent == null) { return; }
         DEBUG(() => "GAME EVENT RECEIVED: " + gameEvent.provider.name);
         
-        var mapProperties = gameEvent.getMapProperties();
-        gameEvent.map.handleTimeChanges((eventDetails, changes) => {
+        gameEvent.map.handleChanges((eventDetails, changes) => {
             INFO(() => $"MAP CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, GameExtension.serializeSettings)}");
             
             var properties = new Dictionary<string, object>();
@@ -50,7 +49,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
                 properties[$"map.{pair.Key}.new"] = pair.Value.newValue;
                 properties[$"map.{pair.Key}.old"] = pair.Value.oldValue;
             }
-            properties.addAllFrom(mapProperties);
+            properties.addAllFrom(gameEvent.getMapProperties());
             CPH.TriggerCodeEvent(eventDetails.id, properties);
         });
     }
@@ -165,9 +164,8 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         DEBUG(() => "{key: " + key + ", value: " + value + ", default: " + defaultValue + "}");
 
         return result ? 
-            !value.Equals("") ? 
-                value 
-                : defaultValue 
+            value != null && !value.Equals("") ? 
+                value : defaultValue 
             : defaultValue;
     }
 
@@ -323,9 +321,9 @@ public abstract class DotaEntity {
         if (previously == null) return changes;
 
         foreach (var path in propertyPaths) {
-            var oldValue = getPropertyByPath(previously, path);
             var newValue = getPropertyByPath(this, path);
-            if (oldValue != newValue) {
+            var oldValue = getPropertyByPath(previously, path);
+            if (newValue != null && oldValue != null && !newValue.Equals(oldValue)) {
                 changes[path] = (newValue, oldValue);
             }
         }
@@ -408,36 +406,83 @@ public class Map : DotaEntity {
         DOTA_MAP_ROSHAN_STATE_CHANGED
     ];
     
-    [JsonProperty("name")] public string name { get; set; }
-    [JsonProperty("matchid")] public string matchId { get; set; }
+    [JsonProperty("name")] public string? name { get; set; }
+    [JsonProperty("matchid")] public string? matchId { get; set; }
+    [JsonProperty("game_time")] public int? gameTime { get; set; }
+    [JsonProperty("clock_time")] public int? clockTime { get; set; }
+    [JsonProperty("daytime")] public bool? isDayTime { get; set; }
+    [JsonProperty("nightstalker_night")] public bool? isNightStalkerNight { get; set; }
+    [JsonProperty("radiant_score")] public int? radiantScore { get; set; }
+    [JsonProperty("dire_score")] public int? direScore { get; set; }
+    [JsonProperty("game_state")] public GameState? gameState { get; set; }
+    [JsonProperty("paused")] public bool? isPaused { get; set; }
+    [JsonProperty("win_team")] public Team? winningTeam { get; set; }
+    [JsonProperty("customgamename")] public string? customGameName { get; set; }
+    [JsonProperty("ward_purchase_cooldown")] public int? wardPurchaseCooldown { get; set; }
+    [JsonProperty("radiant_ward_purchase_cooldown")] public int? radiantWardPurchaseCooldown { get; set; }
+    [JsonProperty("dire_ward_purchase_cooldown")] public int? direWardPurchaseCooldown { get; set; }
+    [JsonProperty("roshan_state")] public RoshanState? roshanState { get; set; }
+    [JsonProperty("roshan_state_end_time")] public int? roshanStateEndTime { get; set; }
     
-    [JsonProperty("game_time")] public int gameTime { get; set; }
-    [JsonProperty("clock_time")] public int clockTime { get; set; }
-    [JsonProperty("daytime")] public bool isDayTime { get; set; }
-    [JsonProperty("nightstalker_night")] public bool isNightStalkerNight { get; set; }
-    
-    [JsonProperty("radiant_score")] public int radiantScore { get; set; }
-    [JsonProperty("dire_score")] public int direScore { get; set; }
-    
-    [JsonProperty("game_state")] public GameState gameState { get; set; }
-    
-    [JsonProperty("paused")] public bool isPaused { get; set; }
-    
-    [JsonProperty("win_team")] public Team winningTeam { get; set; }
-    
-    [JsonProperty("customgamename")] public string customGameName { get; set; }
-    [JsonProperty("ward_purchase_cooldown")] public int wardPurchaseCooldown { get; set; }
-    [JsonProperty("radiant_ward_purchase_cooldown")] public int radiantWardPurchaseCooldown { get; set; }
-    [JsonProperty("dire_ward_purchase_cooldown")] public int direWardPurchaseCooldown { get; set; }
-    
-    [JsonProperty("roshan_state")] public RoshanState roshanState { get; set; }
-    [JsonProperty("roshan_state_end_time")] public int roshanStateEndTime { get; set; }
-    
-    public void handleTimeChanges(Action<EventDetails, Dictionary<string, (object newValue, object oldValue)>> onEvent) {
-        var changes = getChanges(nameof(gameTime), nameof(clockTime));
-        
-        if (changes.Any()) {
-            onEvent(DOTA_MAP_TIME_CHANGED_EVENT, changes);
+    public void handleChanges(Action<EventDetails, Dictionary<string, (object newValue, object oldValue)>> onEvent) {
+        var matchChanges = getChanges(nameof(name), nameof(matchId));
+        var timeChanges = getChanges(nameof(gameTime), nameof(clockTime));
+        var dayChanges = getChanges(nameof(isDayTime), nameof(isNightStalkerNight));
+        var radiantScoreChanges = getChanges(nameof(radiantScore));
+        var direScoreChanges = getChanges(nameof(direScore));
+        var stateChanges = getChanges(nameof(gameState));
+        var pausedChanges = getChanges(nameof(isPaused));
+        var winningChanges = getChanges(nameof(winningTeam));
+        var customGameNameChanges = getChanges(nameof(customGameName));
+        var wardCooldownChanges = getChanges(nameof(wardPurchaseCooldown), nameof(radiantWardPurchaseCooldown), nameof(direWardPurchaseCooldown));
+        var roshanStateChanges = getChanges(nameof(roshanState), nameof(roshanStateEndTime));
+
+        if (matchChanges.Any()) {
+            onEvent(DOTA_MAP_MATCH_CHANGED_EVENT, matchChanges);
+        }
+        if (timeChanges.Any()) {
+            onEvent(DOTA_MAP_TIME_CHANGED_EVENT, timeChanges);
+        }
+        if (dayChanges.Any()) {
+            if (isNightStalkerNight != null && isNightStalkerNight.Value) {
+                onEvent(DOTA_MAP_NIGHTSTALKER_NIGHT_EVENT, dayChanges);
+            } else {
+                if (isDayTime != null) {
+                    onEvent(isDayTime.Value ? DOTA_MAP_DAY_EVENT : DOTA_MAP_NIGHT_EVENT, dayChanges);
+                }
+            }
+        }
+        if (radiantScoreChanges.Any()) {
+            onEvent(DOTA_MAP_RADIANT_SCORE_EVENT, radiantScoreChanges);
+        }
+        if (direScoreChanges.Any()) {
+            onEvent(DOTA_MAP_DIRE_SCORE_EVENT, direScoreChanges);
+        }
+        if (stateChanges.Any()) {
+            onEvent(DOTA_MAP_GAME_STATE_EVENT, stateChanges);
+        }
+        if (pausedChanges.Any()) {
+            if (isPaused != null) {
+                onEvent(isPaused.Value ? DOTA_MAP_GAME_PAUSED_EVENT : DOTA_MAP_GAME_UNPAUSE_EVENT, pausedChanges);
+            }
+        }
+        if (winningChanges.Any()) {
+            onEvent(DOTA_MAP_GAME_WIN_TEAM_EVENT, winningChanges);
+        }
+        if (customGameNameChanges.Any()) {
+            onEvent(DOTA_MAP_CUSTOM_GAME_NAME_EVENT, customGameNameChanges);
+        }
+        if (wardCooldownChanges.Any()) {
+            onEvent(DOTA_MAP_WARD_COOLDOWN_EVENT, wardCooldownChanges);
+            if (wardCooldownChanges[nameof(radiantWardPurchaseCooldown)].newValue != null) {
+                onEvent(DOTA_MAP_WARD_COOLDOWN_RADIANT_EVENT, wardCooldownChanges);
+            }
+            if (wardCooldownChanges[nameof(direWardPurchaseCooldown)].newValue != null) {
+                onEvent(DOTA_MAP_WARD_COOLDOWN_DIRE_EVENT, wardCooldownChanges);
+            }
+        }
+        if (roshanStateChanges.Any()) {
+            onEvent(DOTA_MAP_ROSHAN_STATE_CHANGED, roshanStateChanges);
         }
     }
     
