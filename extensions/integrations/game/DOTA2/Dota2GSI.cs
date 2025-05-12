@@ -41,13 +41,13 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
     private void handleGameEvent(GameEvent gameEvent) {
         DEBUG(() => "GAME EVENT RECEIVED: " + gameEvent.provider.name);
         
-        gameEvent.map.handleChanges((eventDetails, changes) => {
+        gameEvent.map?.handleChanges((eventDetails, changes) => {
             INFO(() => $"MAP CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, GameExtension.serializeSettings)}");
             
             var properties = new Dictionary<string, object>();
             foreach (var pair in changes) {
-                properties[$"map.{pair.Key}.new"] = pair.Value.newValue;
-                properties[$"map.{pair.Key}.old"] = pair.Value.oldValue;
+                properties[$"map.{pair.Key}.new"] = pair.Value.newValue?.ToString() ?? "";
+                properties[$"map.{pair.Key}.old"] = pair.Value.oldValue?.ToString() ?? "";
             }
             properties.addAllFrom(gameEvent.getMapProperties());
             CPH.TriggerCodeEvent(eventDetails.id, properties);
@@ -69,9 +69,10 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
                 DEBUG(() => $"request info: {request.HttpMethod} -> {request.Url}");
                 
                 if (request.HttpMethod == "POST") {
+                    var jsonData = string.Empty;
                     try {
                         using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
-                        var jsonData = await reader.ReadToEndAsync();
+                        jsonData = await reader.ReadToEndAsync();
                         handleGameEvent(
                             deserializeEntity<GameEvent>(jsonData)
                                 .initializePrevious()
@@ -79,7 +80,8 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
                     } catch (Exception e) {
                         ERROR(() => $"cannot handle json event: {e.Message}, " +
                                       $"reason: {e.InnerException?.Message}, " +
-                                      $"stack: {e.StackTrace}"
+                                      $"stack: {e.StackTrace}, " +
+                                      $"originalJson: {jsonData}"
                         );
                     }
                 }
@@ -474,10 +476,10 @@ public class Map : DotaEntity {
         }
         if (wardCooldownChanges.Any()) {
             onEvent(DOTA_MAP_WARD_COOLDOWN_EVENT, wardCooldownChanges);
-            if (wardCooldownChanges[nameof(radiantWardPurchaseCooldown)].newValue != null) {
+            if (wardCooldownChanges.ContainsKey(nameof(radiantWardPurchaseCooldown))) {
                 onEvent(DOTA_MAP_WARD_COOLDOWN_RADIANT_EVENT, wardCooldownChanges);
             }
-            if (wardCooldownChanges[nameof(direWardPurchaseCooldown)].newValue != null) {
+            if (wardCooldownChanges.ContainsKey(nameof(direWardPurchaseCooldown))) {
                 onEvent(DOTA_MAP_WARD_COOLDOWN_DIRE_EVENT, wardCooldownChanges);
             }
         }
