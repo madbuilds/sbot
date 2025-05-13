@@ -42,7 +42,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
         DEBUG(() => "GAME EVENT RECEIVED: " + gameEvent.provider.name);
         
         gameEvent.provider?.handleChanges((eventDetails, changes) => {
-            INFO(() => $"PROVIDER CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
+            DEBUG(() => $"PROVIDER CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
             
             var properties = new Dictionary<string, object>();
             foreach (var pair in changes) {
@@ -53,7 +53,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
             CPH.TriggerCodeEvent(eventDetails.id, properties);
         });
         gameEvent.map?.handleChanges((eventDetails, changes) => {
-            INFO(() => $"MAP CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
+            DEBUG(() => $"MAP CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
             
             var properties = new Dictionary<string, object>();
             foreach (var pair in changes) {
@@ -64,7 +64,7 @@ public class CPHInline_DOTA2GSI : CPHInlineBase {
             CPH.TriggerCodeEvent(eventDetails.id, properties);
         });
         gameEvent.player?.handleChanges((eventDetails, changes) => {
-            INFO(() => $"PLAYER CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
+            DEBUG(() => $"PLAYER CHANGES: {eventDetails.name} {JsonConvert.SerializeObject(changes, Extensions.serializeSettings)}");
             
             var properties = new Dictionary<string, object>();
             foreach (var pair in changes) {
@@ -223,7 +223,6 @@ internal static class Extensions {
         NullValueHandling = NullValueHandling.Ignore
     };
     
-    
     public static void AddIfNotEmpty(this Dictionary<string, object> dictionary, string key, object value) {
         switch (value) {
             case null:
@@ -239,16 +238,20 @@ internal static class Extensions {
     
     public static void addAllFrom<TKey, TValue>(
         this Dictionary<TKey, TValue> dictionary,
-        Dictionary<TKey, TValue> source
+        Dictionary<TKey, TValue> source,
+        bool clearSource = true
     ) {
-        if (source == null) {
+        if (source == null || source.Count == 0) {
             return;
         }
         
         foreach (var pair in source) { //KeyValuePair<TKey, TValue>
             dictionary[pair.Key] = pair.Value;
         }
-        source.Clear();
+
+        if (clearSource) {
+            source.Clear();
+        }
     }
 }
 
@@ -501,58 +504,263 @@ namespace dota {
     public class Player : DotaEntity {
         [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_DETAILS_CHANGED_EVENT    = new("PLAYER CHANGED",     "dota_player_details_changed",              ["dota", "player", "activity"]);
         [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_ACTIVITY_CHANGED_EVENT   = new("ACTIVITY CHANGED",   "dota_player_activity_changed",             ["dota", "player", "activity"]);
-        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_KILLS_CHANGED_EVENT      = new("KILLS CHANGED",     "dota_player_kills_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_KILLS_CHANGED_EVENT      = new("KILLS CHANGED",      "dota_player_kills_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_DEATHS_CHANGED_EVENT     = new("DEATHS CHANGED",     "dota_player_deaths_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_ASSISTS_CHANGED_EVENT    = new("ASSISTS CHANGED",    "dota_player_assists_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_LAST_HIT_CHANGED_EVENT   = new("LAST HIT CHANGED",   "dota_player_last_hit_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_DENIES_CHANGED_EVENT     = new("DENIES CHANGED",     "dota_player_denies_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_COMMANDS_EVENT           = new("COMMANDS CHANGED",   "dota_player_commands_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_SLOT_EVENT               = new("SLOT CHANGED",       "dota_player_slot_changed",              ["dota", "player", "activity"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_EVENT               = new("GOLD CHANGED",             "dota_player_gold_changed",                 ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_RELIABLE_EVENT      = new("GOLD(RELIABLE) CHANGED",   "dota_player_gold_reliable_changed",        ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_UNRELIABLE_EVENT    = new("GOLD(UNRELIABLE) CHANGED", "dota_player_gold_unreliable_changed",      ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_KILLS_EVENT         = new("GOLD(KILLs) CHANGED",      "dota_player_gold_kills_changed",           ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_CREEPS_EVENT        = new("GOLD(CREEPs) CHANGED",     "dota_player_gold_creeps_changed",          ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_INCOME_EVENT        = new("GOLD(INCOME) CHANGED",     "dota_player_gold_income_changed",          ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_SHARED_EVENT        = new("GOLD(SHARED) CHANGED",     "dota_player_gold_shared_changed",          ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GPM_EVENT                = new("GPM CHANGED",     "dota_player_gpm_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_XPM_EVENT                = new("XPM CHANGED",     "dota_player_xpm_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_SEAT_EVENT               = new("SEAT CHANGED",     "dota_player_seat_changed",              ["dota", "player", "activity"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_NET_WORTH_EVENT          = new("NET WORTH CHANGED",     "dota_player_net_worth_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_HERO_DAMAGE_EVENT        = new("HERO DAMAGE CHANGED",     "dota_player_hero_damage_changed",              ["dota", "player", "damage"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_HERO_HEALING_EVENT       = new("HERO HEALING CHANGED",     "dota_player_hero_healing_changed",              ["dota", "player", "damage"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_TOWER_DAMAGE_EVENT       = new("TOWER DAMAGE CHANGED",     "dota_player_tower_damage_changed",              ["dota", "player", "damage"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_WARDS_PURCHASED_EVENT    = new("WARDS PURCHASED",     "dota_player_wards_purchased_changed",              ["dota", "player", "wards"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_WARDS_PLACED_EVENT       = new("WARDS PLACED",     "dota_player_wards_placed_changed",              ["dota", "player", "wards"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_WARDS_DESTROYED_EVENT    = new("WARDS DESTROYED",     "dota_player_wards_destroyed_changed",              ["dota", "player", "wards"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_RUNES_ACTIVATED_EVENT    = new("RUNES ACTIVATED",     "dota_player_runes_activated_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_CAMPS_STACKED_EVENT      = new("CAMPS STACKED",     "dota_player_camps_stacked_changed",              ["dota", "player", "stats"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_SPENT_SUPPORT_EVENT    = new("GOLD SPENT(SUPPORT)",     "dota_player_gold_spent_support_changed",              ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_SPENT_CONSUMABLE_EVENT = new("GOLD SPENT(CONSUMABLE)",     "dota_player_gold_spent_consumable_changed",              ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_SPENT_ITEMS_EVENT      = new("GOLD SPENT(ITEMs)",     "dota_player_gold_spent_items_changed",              ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_LOST_DEATH_EVENT       = new("GOLD LOST(DEATHs)",     "dota_player_gold_lost_deaths_changed",              ["dota", "player", "gold"]);
+        [JsonIgnore] private static readonly EventDetails DOTA_PLAYER_GOLD_LOST_BUYBACK_EVENT     = new("GOLD LOST(BUYBACKs)",     "dota_player_gold_lost_buybacks_changed",              ["dota", "player", "gold"]);
         [JsonIgnore] public static readonly List<EventDetails> MAP_EVENT_LIST = [
             DOTA_PLAYER_DETAILS_CHANGED_EVENT,
             DOTA_PLAYER_ACTIVITY_CHANGED_EVENT,
-            DOTA_PLAYER_KILLS_CHANGED_EVENT
+            DOTA_PLAYER_KILLS_CHANGED_EVENT,
+            DOTA_PLAYER_DEATHS_CHANGED_EVENT,
+            DOTA_PLAYER_ASSISTS_CHANGED_EVENT,
+            DOTA_PLAYER_LAST_HIT_CHANGED_EVENT,
+            DOTA_PLAYER_DENIES_CHANGED_EVENT,    
+            DOTA_PLAYER_COMMANDS_EVENT,          
+            DOTA_PLAYER_SLOT_EVENT,              
+            DOTA_PLAYER_GOLD_EVENT,              
+            DOTA_PLAYER_GOLD_RELIABLE_EVENT,     
+            DOTA_PLAYER_GOLD_UNRELIABLE_EVENT,   
+            DOTA_PLAYER_GOLD_KILLS_EVENT,        
+            DOTA_PLAYER_GOLD_CREEPS_EVENT,
+            DOTA_PLAYER_GOLD_INCOME_EVENT,       
+            DOTA_PLAYER_GOLD_SHARED_EVENT,       
+            DOTA_PLAYER_GPM_EVENT,               
+            DOTA_PLAYER_XPM_EVENT,               
+            DOTA_PLAYER_SEAT_EVENT,              
+            DOTA_PLAYER_NET_WORTH_EVENT,         
+            DOTA_PLAYER_HERO_DAMAGE_EVENT,       
+            DOTA_PLAYER_HERO_HEALING_EVENT,      
+            DOTA_PLAYER_TOWER_DAMAGE_EVENT,      
+            DOTA_PLAYER_WARDS_PURCHASED_EVENT,   
+            DOTA_PLAYER_WARDS_PLACED_EVENT,
+            DOTA_PLAYER_WARDS_DESTROYED_EVENT,   
+            DOTA_PLAYER_RUNES_ACTIVATED_EVENT,
+            DOTA_PLAYER_CAMPS_STACKED_EVENT,
+            DOTA_PLAYER_GOLD_SPENT_SUPPORT_EVENT,
+            DOTA_PLAYER_GOLD_SPENT_CONSUMABLE_EVENT,
+            DOTA_PLAYER_GOLD_SPENT_ITEMS_EVENT,
+            DOTA_PLAYER_GOLD_LOST_DEATH_EVENT,
+            DOTA_PLAYER_GOLD_LOST_BUYBACK_EVENT
         ];
-            
-        [JsonProperty("steamid")] public string steamId { get; set; }
-        [JsonProperty("accountid")] public string accountId { get; set; }
-        [JsonProperty("name")] public string name { get; set; }
-        [JsonProperty("activity")] public string activity { get; set; }
-        [JsonProperty("kills")] public int kills { get; set; }
-        [JsonProperty("deaths")] public int deaths { get; set; }
-        [JsonProperty("assists")] public int assists { get; set; }
-        [JsonProperty("last_hits")] public int lastHits { get; set; }
-        [JsonProperty("denies")] public int denies { get; set; }
-        [JsonProperty("kill_streak")] public int killStreak { get; set; }
-        [JsonProperty("commands_issued")] public int commandsIssued { get; set; }
-        [JsonProperty("kill_list")] public Dictionary<string, int> killList { get; set; }
-        [JsonProperty("team_name")] public string teamName { get; set; }
-        [JsonProperty("player_slot")] public int slotPlayer { get; set; }
-        [JsonProperty("team_slot")] public int slotTeam { get; set; }
-        [JsonProperty("gold")] public int gold { get; set; }
-        [JsonProperty("gold_reliable")] public int goldReliable { get; set; }
-        [JsonProperty("gold_unreliable")] public int goldUnreliable { get; set; }
-        [JsonProperty("gold_from_hero_kills")] public int goldFromKills { get; set; }
-        [JsonProperty("gold_from_creep_kills")] public int goldFromCreeps { get; set; }
-        [JsonProperty("gold_from_income")] public int goldFromIncome { get; set; }
-        [JsonProperty("gold_from_shared")] public int goldFromShared { get; set; }
-        [JsonProperty("gpm")] public int gpm { get; set; }
-        [JsonProperty("xpm")] public int xpm { get; set; }
-        [JsonProperty("onstage_seat")] public int onStageSeat { get; set; }
-        [JsonProperty("net_worth")] public int netWorth { get; set; }
-        [JsonProperty("hero_damage")] public int heroDamage { get; set; }
-        [JsonProperty("hero_healing")] public int heroHealing { get; set; }
-        [JsonProperty("tower_damage")] public int towerDamage { get; set; }
-        [JsonProperty("wards_purchased")] public int wardsPurchased { get; set; }
-        [JsonProperty("wards_placed")] public int wardsPlaced { get; set; }
-        [JsonProperty("wards_destroyed")] public int wardsDestroyed { get; set; }
-        [JsonProperty("runes_activated")] public int runesActivated { get; set; }
-        [JsonProperty("camps_stacked")] public int campsStacked { get; set; }
-        [JsonProperty("support_gold_spent")] public int supportGoldSpent { get; set; }
-        [JsonProperty("consumable_gold_spent")] public int consumableGoldSpent { get; set; }
-        [JsonProperty("item_gold_spent")] public int itemGoldSpent { get; set; }
-        [JsonProperty("gold_lost_to_death")] public int goldLostToDeath { get; set; }
-        [JsonProperty("gold_spent_on_buybacks")] public int goldSpentOnBuybacks { get; set; }
+        
+        [JsonProperty("steamid")] public string? steamId { get; set; }
+        [JsonProperty("accountid")] public string? accountId { get; set; }
+        [JsonProperty("name")] public string? name { get; set; }
+        [JsonProperty("activity")] public string? activity { get; set; }
+        [JsonProperty("kills")] public int? kills { get; set; }
+        [JsonProperty("deaths")] public int? deaths { get; set; }
+        [JsonProperty("assists")] public int? assists { get; set; }
+        [JsonProperty("last_hits")] public int? lastHits { get; set; }
+        [JsonProperty("denies")] public int? denies { get; set; }
+        [JsonProperty("kill_streak")] public int? killStreak { get; set; }
+        [JsonProperty("commands_issued")] public int? commandsIssued { get; set; }
+        [JsonProperty("kill_list")] public Dictionary<string, int>? killList { get; set; }
+        [JsonProperty("team_name")] public string? teamName { get; set; }
+        [JsonProperty("player_slot")] public int? slotPlayer { get; set; }
+        [JsonProperty("team_slot")] public int? slotTeam { get; set; }
+        [JsonProperty("gold")] public int? gold { get; set; }
+        [JsonProperty("gold_reliable")] public int? goldReliable { get; set; }
+        [JsonProperty("gold_unreliable")] public int? goldUnreliable { get; set; }
+        [JsonProperty("gold_from_hero_kills")] public int? goldFromKills { get; set; }
+        [JsonProperty("gold_from_creep_kills")] public int? goldFromCreeps { get; set; }
+        [JsonProperty("gold_from_income")] public int? goldFromIncome { get; set; }
+        [JsonProperty("gold_from_shared")] public int? goldFromShared { get; set; }
+        [JsonProperty("gpm")] public int? gpm { get; set; }
+        [JsonProperty("xpm")] public int? xpm { get; set; }
+        [JsonProperty("onstage_seat")] public int? onStageSeat { get; set; }
+        [JsonProperty("net_worth")] public int? netWorth { get; set; }
+        [JsonProperty("hero_damage")] public int? heroDamage { get; set; }
+        [JsonProperty("hero_healing")] public int? heroHealing { get; set; }
+        [JsonProperty("tower_damage")] public int? towerDamage { get; set; }
+        [JsonProperty("wards_purchased")] public int? wardsPurchased { get; set; }
+        [JsonProperty("wards_placed")] public int? wardsPlaced { get; set; }
+        [JsonProperty("wards_destroyed")] public int? wardsDestroyed { get; set; }
+        [JsonProperty("runes_activated")] public int? runesActivated { get; set; }
+        [JsonProperty("camps_stacked")] public int? campsStacked { get; set; }
+        [JsonProperty("support_gold_spent")] public int? supportGoldSpent { get; set; }
+        [JsonProperty("consumable_gold_spent")] public int? consumableGoldSpent { get; set; }
+        [JsonProperty("item_gold_spent")] public int? itemGoldSpent { get; set; }
+        [JsonProperty("gold_lost_to_death")] public int? goldLostToDeath { get; set; }
+        [JsonProperty("gold_spent_on_buybacks")] public int? goldSpentOnBuybacks { get; set; }
 
         public override void handleChanges(Action<EventDetails, Dictionary<string, (object newValue, object oldValue)>> onEvent) {
             var playerDetailsChanges = getChanges(nameof(steamId), nameof(accountId), nameof(name));
+            var activityChanges = getChanges(nameof(activity));
+            var killsChanges = getChanges(nameof(kills), nameof(killStreak));
+            var deathsChanges = getChanges(nameof(deaths));
+            var assistsChanges = getChanges(nameof(assists));
+            var lastHitsChanges = getChanges(nameof(lastHits));
+            var deniesChanges = getChanges(nameof(denies));
+            var commandsIssuedChanges = getChanges(nameof(commandsIssued));
+            var playerSlotChanges = getChanges(nameof(teamName), nameof(slotPlayer), nameof(slotTeam));
+            var goldChanges = getChanges(nameof(gold));
+            var goldReliableChanges = getChanges(nameof(goldReliable));
+            var goldUnreliableChanges = getChanges(nameof(goldUnreliable));
+            var goldFromKillsChanges = getChanges(nameof(goldFromKills));
+            var goldFromCreepsChanges = getChanges(nameof(goldFromCreeps));
+            var goldFromIncomeChanges = getChanges(nameof(goldFromIncome));
+            var goldFromSharedChanges = getChanges(nameof(goldFromShared));
+            var gpmChanges = getChanges(nameof(gpm));
+            var xpmChanges = getChanges(nameof(xpm));
+            var onStageSeatChanges = getChanges(nameof(onStageSeat));
+            var netWorthChanges = getChanges(nameof(netWorth));
+            var heroDamageChanges = getChanges(nameof(heroDamage));
+            var heroHealingChanges = getChanges(nameof(heroHealing));
+            var towerDamageChanges = getChanges(nameof(towerDamage));
+            var wardsPurchasedChanges = getChanges(nameof(wardsPurchased));
+            var wardsPlacedChanges = getChanges(nameof(wardsPlaced));
+            var wardsDestroyedChanges = getChanges(nameof(wardsDestroyed));
+            var runesActivatedChanges = getChanges(nameof(runesActivated));
+            var campsStackedChanges = getChanges(nameof(campsStacked));
+            var supportGoldSpentChanges = getChanges(nameof(supportGoldSpent));
+            var consumableGoldSpentChanges = getChanges(nameof(consumableGoldSpent));
+            var itemGoldSpentChanges = getChanges(nameof(itemGoldSpent));
+            var goldLostToDeathChanges = getChanges(nameof(goldLostToDeath));
+            var goldSpentOnBuybacksChanges = getChanges(nameof(goldSpentOnBuybacks));
 
             if (playerDetailsChanges.Any()) {
                 onEvent(DOTA_PLAYER_DETAILS_CHANGED_EVENT, playerDetailsChanges);
+            }
+            if (activityChanges.Any()) {
+                onEvent(DOTA_PLAYER_ACTIVITY_CHANGED_EVENT, activityChanges);
+            }
+            if (killsChanges.Any()) {
+                killsChanges.addAllFrom(goldFromKillsChanges, false);
+                killsChanges.addAllFrom(gpmChanges, false);
+                killsChanges.addAllFrom(xpmChanges, false);
+                killsChanges.addAllFrom(netWorthChanges, false);
+                killsChanges.addAllFrom(heroDamageChanges, false);
+                onEvent(DOTA_PLAYER_KILLS_CHANGED_EVENT, killsChanges);
+            }
+            if (deathsChanges.Any()) {
+                deathsChanges.addAllFrom(goldLostToDeathChanges, false);
+                deathsChanges.addAllFrom(gpmChanges, false);
+                deathsChanges.addAllFrom(xpmChanges, false);
+                deathsChanges.addAllFrom(netWorthChanges, false);
+                onEvent(DOTA_PLAYER_DEATHS_CHANGED_EVENT, deathsChanges);
+            }
+            if (assistsChanges.Any()) {
+                assistsChanges.addAllFrom(goldFromSharedChanges, false);
+                assistsChanges.addAllFrom(gpmChanges, false);
+                assistsChanges.addAllFrom(xpmChanges, false);
+                assistsChanges.addAllFrom(netWorthChanges, false);
+                onEvent(DOTA_PLAYER_ASSISTS_CHANGED_EVENT, assistsChanges);
+            }
+            if (lastHitsChanges.Any()) {
+                lastHitsChanges.addAllFrom(goldFromCreepsChanges, false);
+                lastHitsChanges.addAllFrom(gpmChanges, false);
+                lastHitsChanges.addAllFrom(xpmChanges, false);
+                lastHitsChanges.addAllFrom(netWorthChanges, false);
+                onEvent(DOTA_PLAYER_LAST_HIT_CHANGED_EVENT, lastHitsChanges);
+            }
+            if (deniesChanges.Any()) {   
+                onEvent(DOTA_PLAYER_DENIES_CHANGED_EVENT, deniesChanges);
+            }
+            if (commandsIssuedChanges.Any()) {
+                onEvent(DOTA_PLAYER_COMMANDS_EVENT, commandsIssuedChanges);
+            }
+            if (playerSlotChanges.Any()) {
+                onEvent(DOTA_PLAYER_SLOT_EVENT, playerSlotChanges);
+            }
+            if (goldChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_EVENT, goldChanges);
+            }
+            if (goldReliableChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_RELIABLE_EVENT, goldReliableChanges);
+            }
+            if (goldUnreliableChanges.Any()) {   
+                onEvent(DOTA_PLAYER_GOLD_UNRELIABLE_EVENT, goldUnreliableChanges);
+            }
+            if (goldFromKillsChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_KILLS_EVENT, goldFromKillsChanges);
+            }
+            if (goldFromCreepsChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_CREEPS_EVENT, goldFromCreepsChanges);
+            }
+            if (goldFromIncomeChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_INCOME_EVENT, goldFromIncomeChanges);
+            }
+            if (goldFromSharedChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_SHARED_EVENT, goldFromSharedChanges);
+            }
+            if (gpmChanges.Any()) {
+                onEvent(DOTA_PLAYER_GPM_EVENT, gpmChanges);
+            }
+            if (xpmChanges.Any()) {
+                onEvent(DOTA_PLAYER_XPM_EVENT, xpmChanges);
+            }
+            if (onStageSeatChanges.Any()) {
+                onEvent(DOTA_PLAYER_SEAT_EVENT, onStageSeatChanges);
+            }
+            if (netWorthChanges.Any()) {
+                onEvent(DOTA_PLAYER_NET_WORTH_EVENT, netWorthChanges);
+            }
+            if (heroDamageChanges.Any()) {
+                onEvent(DOTA_PLAYER_HERO_DAMAGE_EVENT, heroDamageChanges);
+            }
+            if (heroHealingChanges.Any()) {
+                onEvent(DOTA_PLAYER_HERO_HEALING_EVENT, heroHealingChanges);
+            }
+            if (towerDamageChanges.Any()) {
+                onEvent(DOTA_PLAYER_TOWER_DAMAGE_EVENT, towerDamageChanges);
+            }
+            if (wardsPurchasedChanges.Any()) {
+                onEvent(DOTA_PLAYER_WARDS_PURCHASED_EVENT, wardsPurchasedChanges);
+            }
+            if (wardsPlacedChanges.Any()) {
+                onEvent(DOTA_PLAYER_WARDS_PLACED_EVENT, wardsPlacedChanges);
+            }
+            if (wardsDestroyedChanges.Any()) {
+                onEvent(DOTA_PLAYER_WARDS_DESTROYED_EVENT, wardsDestroyedChanges);
+            }
+            if (runesActivatedChanges.Any()) {
+                onEvent(DOTA_PLAYER_RUNES_ACTIVATED_EVENT, runesActivatedChanges);
+            }
+            if (campsStackedChanges.Any()) {
+                onEvent(DOTA_PLAYER_CAMPS_STACKED_EVENT, campsStackedChanges);
+            }
+            if (supportGoldSpentChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_SPENT_SUPPORT_EVENT, supportGoldSpentChanges);
+            }
+            if (consumableGoldSpentChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_SPENT_CONSUMABLE_EVENT, consumableGoldSpentChanges);
+            }
+            if (itemGoldSpentChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_SPENT_ITEMS_EVENT, itemGoldSpentChanges);
+            }
+            if (goldLostToDeathChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_LOST_DEATH_EVENT, goldLostToDeathChanges);   
+            }
+            if (goldSpentOnBuybacksChanges.Any()) {
+                onEvent(DOTA_PLAYER_GOLD_LOST_BUYBACK_EVENT, goldSpentOnBuybacksChanges);  
             }
         }
 
