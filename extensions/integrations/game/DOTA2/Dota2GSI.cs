@@ -237,14 +237,14 @@ public static class GameExtension {
 // DOTA 2 GAME EVENT ENTITIES
 //----------------------------------------------------------------
 public class GameEvent {
-    [JsonProperty("provider")] public Provider provider { get; set; }
-    [JsonProperty("map")] public Map map { get; set; }
-    [JsonProperty("player")] public Player player { get; set; }
-    [JsonProperty("hero")] public Hero hero { get; set; }
-    [JsonProperty("abilities")] public Abilities abilities { get; set; }
-    [JsonProperty("items")] public Items items { get; set; }
-    [JsonProperty("buildings")] public Buildings buildings { get; set; }
-    [JsonProperty("draft")] public Draft draft { get; set; }
+    [JsonProperty("provider")]  [JsonConverter(typeof(dota.DotaEntityConverter<Provider>))]  public Provider provider { get; set; }
+    [JsonProperty("map")]       [JsonConverter(typeof(dota.DotaEntityConverter<Map>))]       public Map map { get; set; }
+    [JsonProperty("player")]    [JsonConverter(typeof(dota.DotaEntityConverter<Player>))]    public Player player { get; set; }
+    [JsonProperty("hero")]      [JsonConverter(typeof(dota.DotaEntityConverter<Hero>))]      public Hero hero { get; set; }
+    [JsonProperty("abilities")] [JsonConverter(typeof(dota.DotaEntityConverter<Abilities>))] public Abilities abilities { get; set; }
+    [JsonProperty("items")]     [JsonConverter(typeof(dota.DotaEntityConverter<Items>))]     public Items items { get; set; }
+    [JsonProperty("buildings")] [JsonConverter(typeof(dota.DotaEntityConverter<Buildings>))] public Buildings buildings { get; set; }
+    [JsonProperty("draft")]     [JsonConverter(typeof(dota.DotaEntityConverter<Draft>))]     public Draft draft { get; set; }
     [JsonProperty("previously")] public GameEvent previousEvent { get; set; }
 
     public GameEvent initializePrevious() {
@@ -252,8 +252,7 @@ public class GameEvent {
         return this;
     }
 
-    public static EventDetails[] getAllEvents()
-    {
+    public static EventDetails[] getAllEvents() {
         return [
             ..Map.MAP_EVENT_LIST
         ];
@@ -959,4 +958,30 @@ public class EventDetails(string name, string id, string[] path) {
     public string name { get; } = name;
     public string id { get; } = id;
     public string[] path { get; } = path;
+}
+
+
+
+namespace dota {
+    class DotaEntityConverter<T> : JsonConverter<T> where T : new() {
+        public override T ReadJson(
+            JsonReader reader, 
+            Type objectType, 
+            T existingValue, 
+            bool hasExistingValue, 
+            JsonSerializer serializer
+        ) {
+            return reader.TokenType == JsonToken.Boolean ? 
+                new T() : 
+                serializer.Deserialize<T>(reader);
+        }
+    
+        public override void WriteJson(
+            JsonWriter writer, 
+            T value, 
+            JsonSerializer serializer
+        ) {
+            serializer.Serialize(writer, value);
+        }
+    }
 }
