@@ -93,6 +93,7 @@
       <Content Include="integrations\game\DOTA2\docs\demo\NS_NIGHT.gif" />
       <Content Include="integrations\game\DOTA2\docs\demo\SILENCE.gif" />
       <Content Include="integrations\game\DOTA2\docs\demo\SMOKED.gif" />
+      <Content Include="integrations\game\DOTA2\docs\demo\triggers.png" />
       <Content Include="integrations\game\DOTA2\docs\entity_new.json" />
       <Content Include="integrations\game\DOTA2\docs\gamestate_integration\gamestate_integration_sbot.cfg" />
       <Content Include="integrations\game\DOTA2\docs\entity_old.json" />

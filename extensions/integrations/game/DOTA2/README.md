@@ -11,7 +11,7 @@ For using it, dota2 game needs to be prepared to allow send events to the target
 2) Create new folder with the name: `gamestate_integration`
     - example: `{STEAM_PATH}\steamapps\common\dota 2 beta\game\dota\cfg\gamestate_integration`
 3) Copy configuration file which has all required data inside (file below):
-    - copy this: [file to be copied](./docs/gamestate_integration/gamestate_integration_sbot.cfg)
+    - copy this: [gamestate integration file](./docs/gamestate_integration/gamestate_integration_sbot.cfg)
       - it has `http://127.0.0.1:13052/` as a target host (can be changed if needed)
     - to here: `{STEAM_PATH}\steamapps\common\dota 2 beta\game\dota\cfg\gamestate_integration`
 4) copy below import code and paste into Streamer.Bot
@@ -35,7 +35,12 @@ For using it, dota2 game needs to be prepared to allow send events to the target
 1) once [installation](#installation) steps are complete (is completed right?)
 2) create any action in StreamerBot
 3) in triggers section `right click` -> `Custom` -> `dota` -> `select what you like`
-   ![triggers](./docs/screens/triggers.png)
+    - it has plenty of triggers, many of them works
+    - some of triggers might not work (play around)\
+      because of dota is changed visibility of data in last patch\
+      due to players was abusing it, but still a lot of helpful events can be parsed
+    - it has as reach info as possible, for each event trigger variables (check this out)
+   ![triggers](./docs/demo/triggers.png)
 4) play the game. Enjoy :)
 
 # Changelog
@@ -44,6 +49,6 @@ For using it, dota2 game needs to be prepared to allow send events to the target
   - hero events
   - map events
 
-# reference: 
+# reference
 * https://github.com/antonpup/Dota2GSI
 * https://github.com/MrBean355/dota2-gsi/wiki/Dota-2-Setup
