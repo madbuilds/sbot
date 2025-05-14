@@ -1,0 +1,875 @@
+﻿{
+  "provider": {
+    "name": "Dota 2",
+    "appid": 570,
+    "version": 48,
+    "timestamp": 1746980054
+  },
+  "map": {
+    "name": "hero_demo_main",
+    "matchid": "0",
+    "game_time": 7474,
+    "clock_time": 7471,
+    "daytime": true,
+    "nightstalker_night": false,
+    "radiant_score": 0,
+    "dire_score": 0,
+    "game_state": "DOTA_GAMERULES_STATE_GAME_IN_PROGRESS",
+    "paused": false,
+    "win_team": "none",
+    "customgamename": "D:\\Games\\Steam\\steamapps\\common\\dota 2 beta\\game\\dota_addons\\hero_demo",
+    "ward_purchase_cooldown": 0
+  },
+  "player": {
+    "steamid": "76561198042413458",
+    "accountid": "82147730",
+    "name": "Р вЂ™Р С›Р вЂќР С›Р СњР С›Р РЋ",
+    "activity": "playing",
+    "kills": 0,
+    "deaths": 0,
+    "assists": 0,
+    "last_hits": 0,
+    "denies": 0,
+    "kill_streak": 0,
+    "commands_issued": 91,
+    "kill_list": {
+
+    },
+    "team_name": "radiant",
+    "player_slot": 0,
+    "team_slot": 0,
+    "gold": 99999,
+    "gold_reliable": 0,
+    "gold_unreliable": 99999,
+    "gold_from_hero_kills": 0,
+    "gold_from_creep_kills": 0,
+    "gold_from_income": 13523,
+    "gold_from_shared": 0,
+    "gpm": 1039,
+    "xpm": 0
+  },
+  "hero": {
+    "facet": 2,
+    "xpos": -1662,
+    "ypos": 1655,
+    "id": 46,
+    "name": "npc_dota_hero_templar_assassin",
+    "level": 15,
+    "xp": 12400,
+    "alive": true,
+    "respawn_seconds": 0,
+    "buyback_cost": 8498,
+    "buyback_cooldown": 0,
+    "health": 1660,
+    "max_health": 1660,
+    "health_percent": 100,
+    "mana": 819,
+    "max_mana": 819,
+    "mana_percent": 100,
+    "silenced": false,
+    "stunned": false,
+    "disarmed": false,
+    "magicimmune": false,
+    "hexed": false,
+    "muted": false,
+    "break": false,
+    "aghanims_scepter": true,
+    "aghanims_shard": true,
+    "smoked": false,
+    "has_debuff": false,
+    "talent_1": false,
+    "talent_2": true,
+    "talent_3": true,
+    "talent_4": false,
+    "talent_5": false,
+    "talent_6": false,
+    "talent_7": false,
+    "talent_8": false,
+    "attributes_level": 7
+  },
+  "abilities": {
+    "ability0": {
+      "name": "templar_assassin_refraction",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability1": {
+      "name": "templar_assassin_meld",
+      "level": 2,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability2": {
+      "name": "templar_assassin_psi_blades",
+      "level": 2,
+      "can_cast": false,
+      "passive": true,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability3": {
+      "name": "templar_assassin_trap",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability4": {
+      "name": "templar_assassin_trap_teleport",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability5": {
+      "name": "templar_assassin_psionic_trap",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": true
+    },
+    "ability6": {
+      "name": "templar_assassin_third_eye",
+      "level": 1,
+      "can_cast": false,
+      "passive": true,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability7": {
+      "name": "plus_high_five",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    },
+    "ability8": {
+      "name": "plus_guild_banner",
+      "level": 1,
+      "can_cast": true,
+      "passive": false,
+      "ability_active": true,
+      "cooldown": 0,
+      "ultimate": false
+    }
+  },
+  "items": {
+    "slot0": {
+      "name": "item_bottle",
+      "purchaser": 0,
+      "item_level": 1,
+      "contains_rune": "empty",
+      "can_cast": true,
+      "cooldown": 0,
+      "passive": false,
+      "item_charges": 3,
+      "charges": 3
+    },
+    "slot1": {
+      "name": "empty"
+    },
+    "slot2": {
+      "name": "empty"
+    },
+    "slot3": {
+      "name": "empty"
+    },
+    "slot4": {
+      "name": "empty"
+    },
+    "slot5": {
+      "name": "empty"
+    },
+    "slot6": {
+      "name": "empty"
+    },
+    "slot7": {
+      "name": "empty"
+    },
+    "slot8": {
+      "name": "empty"
+    },
+    "stash0": {
+      "name": "empty"
+    },
+    "stash1": {
+      "name": "empty"
+    },
+    "stash2": {
+      "name": "empty"
+    },
+    "stash3": {
+      "name": "empty"
+    },
+    "stash4": {
+      "name": "empty"
+    },
+    "stash5": {
+      "name": "empty"
+    },
+    "teleport0": {
+      "name": "item_tpscroll",
+      "purchaser": 0,
+      "item_level": 1,
+      "can_cast": true,
+      "cooldown": 0,
+      "passive": false,
+      "item_charges": 1,
+      "charges": 1
+    },
+    "neutral0": {
+      "name": "empty"
+    },
+    "neutral1": {
+      "name": "empty"
+    },
+    "preserved_neutral6": {
+      "name": "empty"
+    },
+    "preserved_neutral7": {
+      "name": "empty"
+    },
+    "preserved_neutral8": {
+      "name": "empty"
+    },
+    "preserved_neutral9": {
+      "name": "empty"
+    },
+    "preserved_neutral10": {
+      "name": "empty"
+    }
+  },
+  "events": [
+
+  ]
+,
+  "buildings": {
+    "radiant": {
+      "dota_goodguys_tower1_mid": {
+        "health": 0,
+        "max_health": 1800
+      }
+    }
+  },
+  "league": {
+    "league_id": 0,
+    "match_id": "0"
+  },
+  "draft": {
+
+  },
+  "wearables": {
+    "wearable0": 9318,
+    "wearable1": 23836,
+    "wearable2": 4668,
+    "wearable3": 5302,
+    "wearable4": 8632,
+    "wearable5": 514,
+    "wearable6": 790,
+    "wearable7": 791,
+    "wearable8": 792,
+    "wearable9": 793,
+    "wearable10": 816,
+    "wearable11": 13810,
+    "wearable12": 647
+  },
+  "minimap": {
+    "o0": {
+      "xpos": -2688,
+      "ypos": -2176,
+      "image": "minimap_ward_obs",
+      "team": 2,
+      "yaw": 130,
+      "unitname": "dota_fountain",
+      "visionrange": 1800
+    },
+    "o1": {
+      "xpos": 2253,
+      "ypos": 1268,
+      "image": "minimap_ward_obs",
+      "team": 3,
+      "yaw": 345,
+      "unitname": "dota_fountain",
+      "visionrange": 1800
+    },
+    "o2": {
+      "xpos": -1472,
+      "ypos": -1344,
+      "image": "minimap_tower45",
+      "team": 2,
+      "yaw": 45,
+      "unitname": "npc_dota_goodguys_tower1_mid",
+      "visionrange": 0
+    },
+    "o3": {
+      "xpos": 1023,
+      "ypos": 320,
+      "image": "minimap_tower45",
+      "team": 3,
+      "yaw": 45,
+      "unitname": "npc_dota_badguys_tower1_mid",
+      "visionrange": 0
+    },
+    "o4": {
+      "xpos": -1508,
+      "ypos": -1002,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 53,
+      "unitname": "npc_dota_creep_goodguys_ranged",
+      "visionrange": 0
+    },
+    "o5": {
+      "xpos": -1442,
+      "ypos": -1017,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 49,
+      "unitname": "npc_dota_creep_goodguys_ranged",
+      "visionrange": 0
+    },
+    "o6": {
+      "xpos": -1202,
+      "ypos": -802,
+      "image": "minimap_creep",
+      "team": 3,
+      "yaw": -135,
+      "unitname": "npc_dota_creep_badguys_ranged",
+      "visionrange": 750
+    },
+    "o7": {
+      "xpos": -1533,
+      "ypos": -1069,
+      "image": "minimap_creep",
+      "team": 3,
+      "yaw": -116,
+      "unitname": "npc_dota_creep_badguys_melee",
+      "visionrange": 750
+    },
+    "o8": {
+      "xpos": -1406,
+      "ypos": -975,
+      "image": "minimap_creep",
+      "team": 3,
+      "yaw": -164,
+      "unitname": "npc_dota_creep_badguys_melee",
+      "visionrange": 0
+    },
+    "o9": {
+      "xpos": -1257,
+      "ypos": -905,
+      "image": "minimap_creep",
+      "team": 3,
+      "yaw": -127,
+      "unitname": "npc_dota_creep_badguys_ranged",
+      "visionrange": 750
+    },
+    "o10": {
+      "xpos": -1599,
+      "ypos": -1272,
+      "image": "minimap_creep",
+      "team": 3,
+      "yaw": -127,
+      "unitname": "npc_dota_creep_badguys_melee",
+      "visionrange": 750
+    },
+    "o11": {
+      "xpos": -1959,
+      "ypos": -1595,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 40,
+      "unitname": "npc_dota_creep_goodguys_ranged",
+      "visionrange": 750
+    },
+    "o12": {
+      "xpos": -1751,
+      "ypos": -1440,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 49,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o13": {
+      "xpos": -1219,
+      "ypos": -633,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": -15,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 0
+    },
+    "o14": {
+      "xpos": -1733,
+      "ypos": -1370,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 39,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o15": {
+      "xpos": -1807,
+      "ypos": -1372,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 28,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o16": {
+      "xpos": -1821,
+      "ypos": -1463,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 25,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o17": {
+      "xpos": -1661,
+      "ypos": -1356,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 52,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o18": {
+      "xpos": -1795,
+      "ypos": -1533,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 52,
+      "unitname": "npc_dota_creep_goodguys_melee",
+      "visionrange": 750
+    },
+    "o19": {
+      "xpos": -1983,
+      "ypos": -1520,
+      "image": "minimap_creep",
+      "team": 2,
+      "yaw": 32,
+      "unitname": "npc_dota_creep_goodguys_ranged",
+      "visionrange": 750
+    },
+    "o20": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 2,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o21": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o22": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o23": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o24": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o25": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o26": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o27": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o28": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o29": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o30": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o31": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o32": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o33": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o34": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o35": {
+      "xpos": 0,
+      "ypos": 0,
+      "image": "minimap_plaincircle",
+      "team": 0,
+      "yaw": 0,
+      "unitname": "",
+      "visionrange": 0
+    },
+    "o36": {
+      "xpos": -1662,
+      "ypos": 1655,
+      "image": "minimap_herocircle_self",
+      "team": 2,
+      "name": "npc_dota_hero_templar_assassin",
+      "yaw": 46,
+      "unitname": "npc_dota_hero_templar_assassin",
+      "visionrange": 1800
+    },
+    "o37": {
+      "xpos": -2635,
+      "ypos": -1974,
+      "image": "minimap_courier_flying",
+      "team": 2,
+      "yaw": 0,
+      "unitname": "npc_dota_courier",
+      "visionrange": 200
+    }
+  },
+  "roshan": {
+
+  },
+  "couriers": {
+
+  },
+  "neutralitems": {
+
+  },
+  "previously": {
+    "map": {
+      "game_time": 7462,
+      "clock_time": 7459
+    },
+    "player": {
+      "gold_from_income": 13496,
+      "gpm": 1041
+    },
+    "minimap": {
+      "o4": {
+        "xpos": -1219,
+        "ypos": -633,
+        "yaw": -15,
+        "unitname": "npc_dota_creep_goodguys_melee",
+        "visionrange": 750
+      },
+      "o5": {
+        "xpos": -1508,
+        "ypos": -1002,
+        "yaw": 29,
+        "visionrange": 750
+      },
+      "o6": {
+        "xpos": -1088,
+        "ypos": -854,
+        "team": 2,
+        "yaw": 23,
+        "unitname": "npc_dota_creep_goodguys_melee"
+      },
+      "o7": {
+        "xpos": -1442,
+        "ypos": -1017,
+        "team": 2,
+        "yaw": 35,
+        "unitname": "npc_dota_creep_goodguys_ranged"
+      },
+      "o8": {
+        "xpos": -1198,
+        "ypos": -564,
+        "team": 2,
+        "yaw": -16,
+        "unitname": "npc_dota_creep_goodguys_melee",
+        "visionrange": 750
+      },
+      "o9": {
+        "xpos": -776,
+        "ypos": -434,
+        "yaw": -163
+      },
+      "o10": {
+        "xpos": -1114,
+        "ypos": -588,
+        "yaw": 163
+      },
+      "o11": {
+        "xpos": -1022,
+        "ypos": -823,
+        "team": 3,
+        "yaw": -156,
+        "unitname": "npc_dota_creep_badguys_melee"
+      },
+      "o12": {
+        "xpos": -760,
+        "ypos": -468,
+        "team": 3,
+        "yaw": -168,
+        "unitname": "npc_dota_creep_badguys_ranged"
+      },
+      "o13": {
+        "xpos": -1102,
+        "ypos": -662,
+        "team": 3,
+        "yaw": 164,
+        "unitname": "npc_dota_creep_badguys_melee",
+        "visionrange": 750
+      },
+      "o14": {
+        "xpos": -1068,
+        "ypos": -748,
+        "team": 3,
+        "yaw": -101,
+        "unitname": "npc_dota_creep_badguys_flagbearer"
+      },
+      "o15": {
+        "xpos": -1856,
+        "ypos": -1504,
+        "yaw": 0,
+        "unitname": "npc_dota_creep_goodguys_ranged",
+        "visionrange": 0
+      },
+      "o16": {
+        "xpos": -1845,
+        "ypos": -1566,
+        "yaw": 0,
+        "visionrange": 0
+      },
+      "o17": {
+        "xpos": -1856,
+        "ypos": -1420,
+        "yaw": 0,
+        "visionrange": 0
+      },
+      "o18": {
+        "xpos": -1170,
+        "ypos": -692,
+        "yaw": 22,
+        "visionrange": 0
+      },
+      "o19": {
+        "xpos": -1915,
+        "ypos": -1482,
+        "yaw": 0,
+        "unitname": "npc_dota_creep_goodguys_melee",
+        "visionrange": 0
+      },
+      "o20": {
+        "xpos": -1772,
+        "ypos": -1504,
+        "image": "minimap_creep",
+        "unitname": "npc_dota_creep_goodguys_melee"
+      },
+      "o21": {
+        "xpos": -1111,
+        "ypos": -785,
+        "image": "minimap_creep",
+        "team": 2,
+        "yaw": 52,
+        "unitname": "npc_dota_creep_goodguys_melee"
+      },
+      "o22": {
+        "xpos": -1823,
+        "ypos": -1482,
+        "image": "minimap_creep",
+        "team": 2,
+        "unitname": "npc_dota_creep_goodguys_ranged"
+      },
+      "o23": {
+        "team": 2
+      },
+      "o24": {
+        "xpos": -1004,
+        "ypos": -894,
+        "image": "minimap_creep",
+        "team": 3,
+        "yaw": 154,
+        "unitname": "npc_dota_creep_badguys_melee"
+      },
+      "o25": {
+        "xpos": -1067,
+        "ypos": -727,
+        "image": "minimap_creep",
+        "team": 3,
+        "yaw": -127,
+        "unitname": "npc_dota_creep_badguys_melee"
+      },
+      "o36": {
+        "xpos": 0,
+        "ypos": 0,
+        "image": "minimap_plaincircle",
+        "team": 0,
+        "yaw": 0,
+        "unitname": "",
+        "visionrange": 0
+      },
+      "o37": {
+        "xpos": 0,
+        "ypos": 0,
+        "image": "minimap_plaincircle",
+        "team": 0,
+        "unitname": "",
+        "visionrange": 0
+      },
+      "o38": {
+        "xpos": 0,
+        "ypos": 0,
+        "image": "minimap_plaincircle",
+        "team": 0,
+        "yaw": 0,
+        "unitname": "",
+        "visionrange": 0
+      },
+      "o39": {
+        "xpos": 0,
+        "ypos": 0,
+        "image": "minimap_plaincircle",
+        "team": 0,
+        "yaw": 0,
+        "unitname": "",
+        "visionrange": 0
+      },
+      "o40": {
+        "xpos": 0,
+        "ypos": 0,
+        "image": "minimap_plaincircle",
+        "team": 0,
+        "yaw": 0,
+        "unitname": "",
+        "visionrange": 0
+      },
+      "o41": {
+        "xpos": -1662,
+        "ypos": 1655,
+        "image": "minimap_herocircle_self",
+        "team": 2,
+        "name": "npc_dota_hero_templar_assassin",
+        "yaw": 46,
+        "unitname": "npc_dota_hero_templar_assassin",
+        "visionrange": 1800
+      },
+      "o42": {
+        "xpos": -2635,
+        "ypos": -1974,
+        "image": "minimap_courier_flying",
+        "team": 2,
+        "yaw": 0,
+        "unitname": "npc_dota_courier",
+        "visionrange": 200
+      }
+    }
+  },
+  "added": {
+    "minimap": {
+      "o36": {
+        "name": true
+      }
+    }
+  }
+}
