@@ -1,6 +1,6 @@
 ﻿# Integration: Dota 2
 
-- [Discord: Link to Integration Discussion](https://discord.com/channels/834650675224248362/1299390655780360323)
+- [Discord: Link to Integration Discussion](https://discord.com/channels/834650675224248362/1372300858011815996)
 
 ![DEMO](./docs/demo/SILENCE.gif)
 
