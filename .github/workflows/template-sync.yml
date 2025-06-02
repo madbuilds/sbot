@@ -1,7 +1,6 @@
 # File .github/workflows/template-sync.yml
-
-# AUTOMATIC SYNCHRONIZE WITH TEMPLATE: helps to synchronize repositories.
-# template changes will be applied to project repository (except files in .templatesyncignore)
+# DESCRIPTION: automate synchronization with TEMPLATE repo.
+#              template changes will be applied to project repo (except: .templatesyncignore)
 
 on:
   schedule:
