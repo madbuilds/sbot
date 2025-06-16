@@ -1,0 +1,61 @@
+# File .github/workflows/publish-snapshot.yml
+
+# Runs on push to branches (/feature/hotfix/)
+# this workflow publishes SNAPSHOT maven artifact
+
+name: publish SNAPSHOT
+on:
+  push:
+    branches:
+      - 'master'
+      - 'feature/**'
+      - 'hotfix/**'
+  workflow_dispatch:
+
+env:
+  GITHUB_ACTIONS_NAME: github-actions[bot]
+
+jobs:
+  repository:
+    if: ${{ !startsWith(github.repository, 'madbuilds/template-') }}
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.is_required.outputs.run }}
+      type: ${{ steps.validate.outputs.type }}
+      language: ${{ steps.validate.outputs.language }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: is publish required
+        id: is_required
+        run: |
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          if [[ "$COMMIT_AUTHOR" == "${{ env.GITHUB_ACTIONS_NAME }}" ]]; then
+            echo "run=false" >> $GITHUB_OUTPUT
+            echo "SKIP: SNAPSHOT publication not required"
+          else
+            echo "run=true" >> $GITHUB_OUTPUT
+            echo "PROCESS: SNAPSHOT publication required"
+          fi
+
+      - name: validate repository type
+        id: validate
+        env:
+          REPOSITORY_TYPE:     $(jq -r '.repository.custom_properties.type     | select(. != null and . != "unknown") // "default"' < "$GITHUB_EVENT_PATH")
+          REPOSITORY_LANGUAGE: $(jq -r '.repository.custom_properties.language | select(. != null and . != "unknown") // "default"' < "$GITHUB_EVENT_PATH")
+        run: |
+          echo "repository type:     ${{ env.REPOSITORY_TYPE }}"
+          echo "repository language: ${{ env.REPOSITORY_LANGUAGE }}"
+          echo "type=${{ env.REPOSITORY_TYPE }}" >> $GITHUB_OUTPUT
+          echo "language=${{ env.REPOSITORY_LANGUAGE }}" >> $GITHUB_OUTPUT
+
+  publish-library:
+    needs: repository
+    if: needs.repository.outputs.run == 'true' && needs.repository.outputs.type == 'library'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and Publish
+        uses: ./.github/actions/publish/snapshot/library
