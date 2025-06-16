@@ -1,10 +1,7 @@
 ./.github/actions
 ./.github/workflows/prepare-release.yml
-./.github/workflows/publish-release.yml
-./.github/workflows/publish-snapshot.yml
-./.github/workflows/example-loop.yml
-./.github/workflows/secrets-update.yml
 ./.github/workflows/repository-init.yml
+./.github/workflows/repository-update.yml
 ./.github/dependabot.yml
 ./.gitignore
 ./template
