@@ -36,6 +36,6 @@ body:
     attributes:
       label: "Unresolved questions"
       description: What questions still remain unresolved ?
-      placeholder: Identify any unresolved issues.
+      placeholder: Identify any unresolved issues or Discussion links to admit
     validations:
       required: false
