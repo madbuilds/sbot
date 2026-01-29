@@ -81,6 +81,7 @@
   ```
 
 # Changelog
+* 1.3.0 - Bridge Pro support [Pull Request 14](https://github.com/madbuilds/sbot/pull/23)
 * 1.2.1 - logs fixed [Pull Request 13](https://github.com/madbuilds/sbot/pull/13)
 * 1.2.0 - migration to GitHub: [Pull Request 10](https://github.com/madbuilds/sbot/pull/10)
   - all code/instructions moved to github for better support
