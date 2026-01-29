@@ -1,4 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
+// ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 #pragma warning disable CS0114
 
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
  * [API] HUE
  */
 // ReSharper disable once UnusedType.Global
-public class CPHInline_HUE : CPHInlineBase {
+public class CPHInline {
     private const string HUE_BRIDGE_APP_KEY_PROPERTY = "integration.phillipsHue.bridge.appKey";
 
     private string ip;
@@ -27,8 +27,14 @@ public class CPHInline_HUE : CPHInlineBase {
             _ = registerNewApplication();
         } else {
             DEBUG(() => "KEY FOUND, CREATE CLIENT");
-            client = new LocalHueClient(ip);
-            client.Initialize(appKey);
+            try {
+                client = new LocalHueClient(ip);
+                client.Initialize(appKey);
+            } catch (Exception e) {
+                ERROR(() => $"Cannot initialize client for {ip}: {e.Message}" + 
+                    (e.InnerException != null ? $"\nStackTrace: {e.InnerException.Message}" : "") + $"\n{e.StackTrace}"
+                );
+            }
         }
         _ = printAllLights();
     }
@@ -108,16 +114,22 @@ public class CPHInline_HUE : CPHInlineBase {
     }
     
     private async Task printAllLights() {
-        var lights = await client.GetLightsAsync();
-        INFO(() => "PRINT ALL THE AVAILABLE HUE LIGHTS");
-        INFO(() => "=====================");
-        foreach(var light in lights) {
-            INFO(() => "HUE ID    : " + light.Id);
-            INFO(() => "HUE NAME  : " + light.Name);
-            INFO(() => "HUE TYPE  : " + light.Type);
-            INFO(() => "HUE MODEL : " + light.ModelId);
-            INFO(() => "HUE STATE : " + (light.State.On ? "ON" : "OFF"));
+        try {
+            var lights = await client.GetLightsAsync();
+            INFO(() => "PRINT ALL THE AVAILABLE HUE LIGHTS");
             INFO(() => "=====================");
+            foreach(var light in lights) {
+                INFO(() => "HUE ID    : " + light.Id);
+                INFO(() => "HUE NAME  : " + light.Name);
+                INFO(() => "HUE TYPE  : " + light.Type);
+                INFO(() => "HUE MODEL : " + light.ModelId);
+                INFO(() => "HUE STATE : " + (light.State.On ? "ON" : "OFF"));
+                INFO(() => "=====================");
+            }
+        } catch (Exception e) {
+            ERROR(() => $"Cannot get lights: {e.Message}" + 
+                (e.InnerException != null ? $"\nStackTrace: {e.InnerException.Message}" : "") + $"\n{e.StackTrace}"
+            );
         }
     }
     
@@ -189,7 +201,7 @@ public class CPHInline_HUE : CPHInlineBase {
     //----------------------------------------------------------------
     // DEFAULT METHODS AND SETUP
     //----------------------------------------------------------------
-    private const bool isDebugEnabled = false;
+    private const bool isDebugEnabled = true;
     private bool isInitialized;
     private string widgetActionName = "TEMPLATE";
     
