@@ -5,9 +5,9 @@
 ![DEMO](./docs/demo.gif)
 
 # Installation
-1) download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.23.1.0 (.net 4.5)
+1) download [Q42.HueApi.dll - HUE API library](./lib/Q42.HueApi.dll) v3.24.0 (.net 4.5)
    - created by: https://github.com/michielpost/Q42.HueApi look in NuGet packages
-   - asd
+   - original nuget: https://www.nuget.org/packages/Q42.HueApi/3.24.0
 2) copy this downloaded lib to - **STREMER_BOT_INSTALLATION_PATH**/dlls/Q42.HueApi.dll
 3) copy below import code and paste into Streamer.Bot 
    ```text
@@ -63,7 +63,7 @@
   ```text
   hue.id - mandatory
   ```
-* #### TurnOffHueID 
+* #### TurnOffHueID
   Executes method to Turn your device OFF by it's `HUE ID`
   ```text
   hue.id - mandatory
