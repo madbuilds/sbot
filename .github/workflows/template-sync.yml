@@ -25,19 +25,18 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Auth # https://github.com/tibdex/github-app-token
-        id: auth
+      - id: auth # https://github.com/tibdex/github-app-token
         uses: tibdex/github-app-token@v2
         with:
           app_id:      ${{ env.SYNC_APP_ID }}
           private_key: ${{ env.SYNC_PRIVATE_KEY }}
 
-      - name: Checkout # https://github.com/actions/checkout#usage
-        uses: actions/checkout@v4
+      - id: checkout # https://github.com/actions/checkout#usage
+        uses: actions/checkout@v6
         with:
           token: '${{ steps.auth.outputs.token }}'
 
-      - name: actions-template-sync # https://github.com/marketplace/actions/actions-template-sync#usage
+      - id: sync # https://github.com/marketplace/actions/actions-template-sync#usage
         uses: AndreasAugustin/actions-template-sync@v2
         with:
           source_gh_token: ${{ steps.auth.outputs.token }}
