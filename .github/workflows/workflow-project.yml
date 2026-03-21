@@ -1,4 +1,6 @@
-name: assign to Board
+# File .github/workflows/workflow-project.yml
+# DESCRIPTION: adds created PR/ISSUE to the board for better organizing and monitoring.
+#              for ISSUE's applies the issue type based on its title.
 
 on:
   issues:
